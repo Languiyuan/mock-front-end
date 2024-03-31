@@ -1,37 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-import { logoutApi } from './api/modules/login'
+// import { logoutApi } from './api/modules/login'
 
 const name = ref('tktk1')
 console.log('name', name)
-onMounted(async () => {
-  const data = await logoutApi()
-  console.log('data', data)
-})
+// onMounted(async () => {
+//   const data = await logoutApi()
+//   console.log('data', data)
+// })
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <main class="flex justify-center items-center flex-col px-[20px] gap-4">
-    <div class="text-xl text-sky-500">L-mock</div>
-    <p class="text-gray-500 text-sm">L-mock</p>
-    <el-button type="primary">Primary</el-button>
-  </main>
-
   <RouterView />
 </template>
 
