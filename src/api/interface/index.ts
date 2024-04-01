@@ -36,8 +36,19 @@ export namespace Login {
     username: string
     password: string
   }
+
+  export interface ReqRefresh {
+    refreshToken: string
+  }
   export interface ResLogin {
-    access_token: string
+    accessToken: string
+    refreshToken: string
+    userInfo: Record<string, any>
+  }
+
+  export interface ResRefresh {
+    accessToken: string
+    refreshToken: string
   }
   export interface ResAuthButtons {
     [key: string]: string[]

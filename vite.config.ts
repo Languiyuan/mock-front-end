@@ -4,6 +4,7 @@ import { defineConfig, loadEnv, ConfigEnv, UserConfig } from 'vite'
 import { createProxy } from './build/proxy'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import VueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
@@ -13,7 +14,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
   return {
     base: viteEnv.VITE_PUBLIC_PATH,
     root,
-    plugins: [vue(), vueJsx()],
+    plugins: [vue(), vueJsx(), VueDevTools()],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url))

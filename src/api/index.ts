@@ -3,8 +3,10 @@ import { ElMessage } from 'element-plus'
 import { ResultData } from '@/api/interface'
 import { ResultEnum } from '@/api/enums/httpEnum'
 import { checkStatus } from './helper/checkStatus'
+import { useUserStore } from '@/stores/modules/user'
 
 import router from '@/router'
+import { refreshApi } from './modules/login'
 
 export interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
   noLoading?: boolean
@@ -51,23 +53,42 @@ class RequestHttp {
       (response: AxiosResponse) => {
         const { data } = response
         // const userStore = useUserStore()
-        // 登陆失效
-        if (data.code == ResultEnum.OVERDUE) {
-          // userStore.setToken('')
-          router.replace('/login')
-          ElMessage.error(data.msg)
-          return Promise.reject(data)
-        }
+        // // 登陆失效 如果登录失效，是会到error中
+        // if (data.code == ResultEnum.OVERDUE) {
+        //   // userStore.setToken('')
+        //   router.replace('/login')
+        //   ElMessage.error(data.message)
+        //   return Promise.reject(data)
+        // }
         // 全局错误信息拦截（防止下载文件的时候返回数据流，没有 code 直接报错）
         if (data.code && data.code !== ResultEnum.SUCCESS) {
-          ElMessage.error(data.msg)
+          ElMessage.error(data.message)
           return Promise.reject(data)
         }
         // 成功请求（在页面上除非特殊情况，否则不用处理失败逻辑）
         return data
       },
       async (error: AxiosError) => {
-        const { response } = error
+        const { response } = error as { response: AxiosResponse }
+        const userStore = useUserStore()
+
+        console.log('response?.config', response?.config)
+        // 登陆失效 如果登录失效，是会到error中
+        if (response.data.code == ResultEnum.OVERDUE) {
+          // userStore.setToken('')
+          if (response.config.url?.indexOf('/user/refresh') === -1) {
+            const { data } = await refreshApi({ refreshToken: userStore.refreshToken })
+            userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
+            return
+          }
+          userStore.setToken({ accessToken: '', refreshToken: '' })
+          console.log('-------------')
+          router.replace('/login')
+          // ElMessage.error('登录失效')
+          if (response) checkStatus(response.status)
+
+          return Promise.reject(response.data)
+        }
         // 请求超时 && 网络错误单独判断，没有 response
         if (error.message.indexOf('timeout') !== -1) ElMessage.error('请求超时！请您稍后重试')
         if (error.message.indexOf('Network Error') !== -1) ElMessage.error('网络错误！请您稍后重试')

@@ -2,7 +2,7 @@ import './index.css'
 import './assets/main.css'
 
 import { createApp } from 'vue'
-import { createPinia } from 'pinia'
+import pinia from './stores'
 
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
@@ -18,7 +18,7 @@ Object.keys(Icons).forEach((key) => {
   app.component(key, Icons[key as keyof typeof Icons])
 })
 app.use(ElementPlus)
-app.use(createPinia())
+app.use(pinia)
 app.use(router)
 
 app.mount('#app')
