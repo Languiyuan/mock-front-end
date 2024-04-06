@@ -90,10 +90,10 @@ const login = (formEl: FormInstance | undefined) => {
       // keepAliveStore.setKeepAliveName()
 
       // 4.跳转到首页
-      router.push('/about')
+      router.push('/project/index')
       ElNotification({
         title: getTimeState(),
-        message: '欢迎登录 Geeker-Admin',
+        message: '欢迎登录 Lan-mock',
         type: 'success',
         duration: 3000
       })

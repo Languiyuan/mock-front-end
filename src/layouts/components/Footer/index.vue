@@ -1,6 +1,6 @@
 <template>
   <div class="footer flex items-center justify-center">
-    <a href="https://github.com/HalseySpicy" target="_blank"> 2022 © Geeker-Admin By Geeker Technology. </a>
+    <a href="https://github.com/Languiyuan/mock-front-end" target="_blank"> 2024 © Lan-mock By Languiyuan. </a>
   </div>
 </template>
 

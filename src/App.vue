@@ -1,16 +1,4 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-// import { logoutApi } from './api/modules/login'
-
-const name = ref('tktk1')
-console.log('name', name)
-// onMounted(async () => {
-//   const data = await logoutApi()
-//   console.log('data', data)
-// })
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <RouterView />

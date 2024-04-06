@@ -34,9 +34,11 @@ class RequestHttp {
      */
     this.service.interceptors.request.use(
       (config: CustomAxiosRequestConfig) => {
+        const userStore = useUserStore()
+
         // 当前请求不需要显示 loading，在 api 服务中通过指定的第三个参数: { noLoading: true } 来控制
         if (config.headers && typeof config.headers.set === 'function') {
-          // config.headers.set('x-access-token', userStore.token)
+          config.headers.set('authorization', `Bearer ${userStore.accessToken}`)
         }
         return config
       },
@@ -50,16 +52,26 @@ class RequestHttp {
      *  服务器换返回信息 -> [拦截统一处理] -> 客户端JS获取到信息
      */
     this.service.interceptors.response.use(
-      (response: AxiosResponse) => {
+      async (response: AxiosResponse) => {
         const { data } = response
         // const userStore = useUserStore()
-        // // 登陆失效 如果登录失效，是会到error中
-        // if (data.code == ResultEnum.OVERDUE) {
-        //   // userStore.setToken('')
-        //   router.replace('/login')
-        //   ElMessage.error(data.message)
-        //   return Promise.reject(data)
-        // }
+        // 登陆失效 如果登录失效，是会到error中
+        if (data.code == ResultEnum.OVERDUE) {
+          // userStore.setToken('')
+          // if (response.config.url?.indexOf('/user/refresh') === -1) {
+          //   const { data } = await refreshApi({ refreshToken: userStore.refreshToken })
+          //   userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
+          //   response.config.headers.set('authorization', `Bearer ${userStore.accessToken}`)
+          //   axios(response.config)
+          //   return
+          // }
+          // userStore.setToken({ accessToken: '', refreshToken: '' })
+          // console.log('-------------')
+          // router.replace('/login')
+          // // ElMessage.error('登录失效')
+          // if (response) checkStatus(response.status)
+          // return Promise.reject(response.data)
+        }
         // 全局错误信息拦截（防止下载文件的时候返回数据流，没有 code 直接报错）
         if (data.code && data.code !== ResultEnum.SUCCESS) {
           ElMessage.error(data.message)
@@ -73,12 +85,15 @@ class RequestHttp {
         const userStore = useUserStore()
 
         console.log('response?.config', response?.config)
-        // 登陆失效 如果登录失效，是会到error中
+        // 登陆失效 如果登录失效，是会到error中?
         if (response.data.code == ResultEnum.OVERDUE) {
           // userStore.setToken('')
           if (response.config.url?.indexOf('/user/refresh') === -1) {
             const { data } = await refreshApi({ refreshToken: userStore.refreshToken })
             userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
+            response.config.headers.set('authorization', `Bearer ${userStore.accessToken}`)
+
+            axios(response.config)
             return
           }
           userStore.setToken({ accessToken: '', refreshToken: '' })

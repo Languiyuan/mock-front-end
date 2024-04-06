@@ -19,7 +19,7 @@ export const loginApi = (params: Login.ReqLoginForm) => {
  */
 // token refresh
 export const refreshApi = (params: Login.ReqRefresh) => {
-  return http.get<Login.ResRefresh>(PORT1 + `/user/refresh`, params) // 正常 post json 请求  ==>  application/json
+  return http.post<Login.ResRefresh>(PORT1 + `/user/refresh`, params) // 正常 post json 请求  ==>  application/json
 }
 
 // 用户退出登录

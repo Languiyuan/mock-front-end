@@ -5,8 +5,8 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'home',
-      redirect: '/login'
+      name: 'main',
+      redirect: '/project/index'
     },
     {
       path: '/about',
