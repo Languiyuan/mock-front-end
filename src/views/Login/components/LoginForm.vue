@@ -49,7 +49,7 @@ import { useUserStore } from '@/stores/modules/user'
 // import { initDynamicRouter } from '@/routers/modules/dynamicRouter'
 import { CircleClose, UserFilled } from '@element-plus/icons-vue'
 import type { ElForm } from 'element-plus'
-// import md5 from "js-md5";
+import { Md5 } from 'ts-md5'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -77,7 +77,10 @@ const login = (formEl: FormInstance | undefined) => {
     loading.value = true
     try {
       // 1.执行登录接口
-      const { data } = await loginApi({ ...loginForm, password: loginForm.password })
+      const md5: any = new Md5()
+      md5.appendAsciiStr(loginForm.password)
+      const password = md5.end()
+      const { data } = await loginApi({ ...loginForm, password })
       userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
       const { username, id } = data.userInfo
       userStore.setUserInfo({ username, id })
