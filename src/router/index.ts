@@ -9,14 +9,6 @@ const router = createRouter({
       redirect: '/project/index'
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
-    },
-    {
       path: '/login',
       name: 'login',
       // route level code-splitting
@@ -69,6 +61,20 @@ const router = createRouter({
           meta: {
             icon: 'HomeFilled',
             title: '个人中心',
+            isLink: '',
+            isHide: false,
+            isFull: false,
+            isAffix: true,
+            isKeepAlive: true
+          }
+        },
+        {
+          path: '/apiList/index',
+          name: 'apiList',
+          component: () => import('@/views/ApiList/index.vue'),
+          meta: {
+            icon: '',
+            title: '接口列表',
             isLink: '',
             isHide: false,
             isFull: false,

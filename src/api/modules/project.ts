@@ -14,3 +14,11 @@ export const addProjectApi = (params: Project.AddProjectReq) => {
 export const deleteProjectApi = (params: Project.DeleteProjectReq) => {
   return http.post<string>(PORT1 + '/project/delete', params)
 }
+
+export const editProjectApi = (params: Project.EditProjectReq) => {
+  return http.post<string>(PORT1 + '/project/edit', params)
+}
+
+export const getProjectDetailApi = (params: Project.DeleteProjectReq) => {
+  return http.get<Project.ResPorjectDetail>(PORT1 + '/project/detail', params)
+}

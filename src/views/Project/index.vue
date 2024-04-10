@@ -10,15 +10,13 @@
       <div class="absolute top-0 right-0 flex items-center">
         <el-input v-model="searchInput" class="!w-72 mr-5" placeholder="请输入项目名称或baseUrl" suffix-icon="Search" />
         <el-button type="primary" @click="handleAddProject">新增项目</el-button>
-
-        <AddProjectDialog ref="addProjectDialog" @success="getProjectList"></AddProjectDialog>
       </div>
     </div>
 
     <div class="h-[calc(100%_-_40px)] pt-4 scrollbar-container" v-loading="loading">
       <el-row :gutter="20">
         <el-col :span="colSpan" v-for="(item, index) in projectList" :key="'project' + index">
-          <el-card class="min-w-48 mb-5 cursor-pointer hover:translate-y-[-0.5rem]" shadow="hover">
+          <el-card class="min-w-48 mb-5 cursor-pointer hover:translate-y-[-0.5rem]" shadow="hover" @click="handleGoApiList(item)">
             <template #header>
               <div class="flex items-center">
                 <div class="flex-1 text-e text-[18px] font-bold">
@@ -30,18 +28,24 @@
 
             <div class="min-h-28">
               <p class="text-e pb-1" :title="item.baseUrl">{{ item.baseUrl }}</p>
-              <p class="text-e pb-1" :title="item.createTime.toDateString">{{ formatTime(item.createTime) }}</p>
+              <p class="text-e pb-1" :title="formatTime(item.createTime)">{{ formatTime(item.createTime) }}</p>
               <p class="line-clamp-2 pb-1" :title="item.description">{{ item.description }}</p>
             </div>
 
             <template #footer>
               <div class="flex items-center">
-                <div class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100" @click="handleDelete(item)">
+                <div
+                  class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100"
+                  @click.stop="handleDelete(item)"
+                >
                   <el-icon>
                     <Delete />
                   </el-icon>
                 </div>
-                <div class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100">
+                <div
+                  class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100"
+                  @click.stop="handleEdit(item)"
+                >
                   <el-icon>
                     <Setting />
                   </el-icon>
@@ -52,6 +56,8 @@
         </el-col>
       </el-row>
     </div>
+
+    <AddProjectDialog ref="addProjectDialog" :type="type" :info="projectInfo" @success="getProjectList"></AddProjectDialog>
   </div>
 </template>
 
@@ -63,8 +69,10 @@ import { Project } from '../../api/interface/index'
 import { formatTime } from '@/utils/index'
 import AddProjectDialog from '@/views/Project/components/AddProjectDialog.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
 
 const tabPosition = ref<EpPropMergeType<StringConstructor, 'left' | 'top' | 'bottom' | 'right', unknown> | undefined>('top')
+const router = useRouter()
 
 // * 获取项目列表
 const loading = ref(false)
@@ -95,8 +103,19 @@ watch(
 )
 
 // * 添加项目
+const type = ref('add')
+const projectInfo = ref<Project.ResPorjectDetail | null>(null)
 const addProjectDialog = ref()
 const handleAddProject = () => {
+  type.value = 'add'
+  projectInfo.value = null
+  addProjectDialog.value.open()
+}
+
+// * 编辑项目
+const handleEdit = (project: Project.ResPorjectDetail) => {
+  type.value = 'eidt'
+  projectInfo.value = project
   addProjectDialog.value.open()
 }
 
@@ -110,9 +129,9 @@ const deleteProject = async (projectId: number) => {
 }
 const handleDelete = (project: Project.ResPorjectDetail) => {
   const regex = new RegExp(`^${project.name}$`)
-  ElMessageBox.prompt('请输入项目名称确认删除', '删除项目', {
+  ElMessageBox.prompt('请输入·项目名称·确认删除(项目所有数据将被删除)', '删除项目', {
     confirmButtonText: '确认',
-    // cancelButtonText: '取消',
+    cancelButtonText: '取消',
     inputPattern: regex,
     inputErrorMessage: '项目名称错误'
   })
@@ -135,6 +154,16 @@ watch(searchInput, () => {
     return item.name.includes(searchInput.value) || item.baseUrl.includes(searchInput.value)
   })
 })
+
+// * 跳转apiList
+const handleGoApiList = (projectInfo: Project.ResPorjectDetail) => {
+  router.push({
+    name: 'apiList',
+    query: {
+      id: projectInfo.id
+    }
+  })
+}
 
 // * 一行显示多少个card
 const colSpan = ref(6)

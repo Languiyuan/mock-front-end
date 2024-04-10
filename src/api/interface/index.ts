@@ -12,7 +12,7 @@ export interface ResultData<T = any> extends Result {
 // 分页响应参数
 export interface ResPage<T> {
   list: T[]
-  pageNum: number
+  pageNo: number
   pageSize: number
   total: number
 }
@@ -116,6 +116,8 @@ export namespace Project {
     projectId: number
   }
 
+  export interface EditProjectReq extends AddProjectReq, DeleteProjectReq {}
+
   export interface ResPorjectDetail {
     baseUrl: string
     createUserId: number
@@ -124,8 +126,40 @@ export namespace Project {
     isDeleted: number
     name: string
     sign: string
-    updateTime: Date
-    createTime: Date
+    updateTime: Date | string
+    createTime: Date | string
     updateUserId: number
+    createUsername?: String
+    members?: { id: number; name: string }[]
+  }
+}
+
+export namespace MockApi {
+  export interface ReqApiList {
+    projectId: number
+    folderId?: number | null
+    name?: string
+    url?: string
+    pageNo: number
+    pageSize: number
+  }
+
+  export interface ResApiDetail {
+    id: number
+    projectId: number
+    projectSign: string
+    createUserId: number
+    updateUserId: number
+    folderId: number | null
+    name: string
+    url: string
+    mockRule: string
+    method: string
+    delay: number
+    description: string
+    on: number
+    isDeleted: number
+    createTime: Date | string
+    updateTime: Date | string
   }
 }

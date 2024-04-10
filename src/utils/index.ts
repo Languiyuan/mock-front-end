@@ -119,6 +119,6 @@ export function getTimeState() {
  * @description 格式化时间函数
  * @returns {String}
  */
-export function formatTime(time: Date, format = 'YYYY-MM-DD HH:mm:ss') {
+export function formatTime(time: Date | string, format = 'YYYY-MM-DD HH:mm:ss') {
   return useDateFormat(time, format).value
 }

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogFormVisible" title="新增项目" width="500" :before-close="close">
+  <el-dialog v-model="dialogFormVisible" :title="title" width="500" :before-close="close">
     <el-form ref="addProjectFormRef" :model="formData" :rules="formRules">
       <el-form-item prop="name" label="项目名称">
         <el-input v-model="formData.name" />
@@ -21,15 +21,35 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import { Project } from '../../../api/interface/index'
 import { FormInstance } from 'element-plus'
-import { addProjectApi } from '../../../api/modules/project'
+import { addProjectApi, editProjectApi } from '../../../api/modules/project'
 import { ElMessage } from 'element-plus'
 
+const $props = defineProps<{
+  info: Project.ResPorjectDetail | null
+  type: string
+}>()
 const $emit = defineEmits<{
   success: []
 }>()
+
+const title = computed(() => ($props.type === 'add' ? '新增项目' : '编辑项目'))
+
+// 编辑回填
+watch(
+  () => $props.info,
+  () => {
+    if ($props.info) {
+      const { name, baseUrl, description } = $props.info
+      formData.name = name
+      formData.baseUrl = baseUrl
+      formData.description = description
+    }
+  },
+  { deep: true }
+)
 
 const dialogFormVisible = ref(false)
 const addProjectFormRef = ref<FormInstance>()
@@ -72,9 +92,14 @@ const close = () => {
 const submit = () => {
   addProjectFormRef.value?.validate(async (valid) => {
     if (!valid) return
+    if ($props.type === 'add') {
+      const { data } = await addProjectApi(formData)
+      ElMessage.success(data)
+    } else {
+      const { data } = await editProjectApi({ ...formData, projectId: $props.info?.id || -1 })
+      ElMessage.success(data)
+    }
 
-    const { data } = await addProjectApi(formData)
-    ElMessage.success(data)
     close()
     $emit('success')
   })
