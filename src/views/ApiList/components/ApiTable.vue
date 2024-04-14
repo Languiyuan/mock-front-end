@@ -43,7 +43,7 @@
         </el-table-column>
         <el-table-column label="操作" width="200">
           <template #default="scope">
-            <el-button link type="primary" size="small"> 编辑 </el-button>
+            <el-button link type="primary" size="small" @click="handleApiEdit(scope.row)"> 编辑 </el-button>
             <el-button link type="primary" size="small" @click="handleDeleteOne(scope.row)"> 删除 </el-button>
           </template>
         </el-table-column>
@@ -150,7 +150,13 @@ const batchDelete = () => {
 }
 
 const drawerRef = ref()
+// const type = ref()
 const handleAddApi = () => {
+  drawerRef.value.open()
+}
+
+const handleApiEdit = (row: MockApi.ResApiDetail) => {
+  console.log('row', row)
   drawerRef.value.open()
 }
 const handleAddOrEditSuccess = () => {
