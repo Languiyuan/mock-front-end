@@ -9,7 +9,7 @@
       <div class="h-full flex items-center">
         <el-button type="primary" icon="Upload">导入</el-button>
         <el-button type="primary" icon="Download">导出</el-button>
-        <el-button type="primary" icon="Delete">批量删除</el-button>
+        <el-button type="primary" icon="Delete" @click="batchDelete" :disabled="!selectedList.length">批量删除</el-button>
         <el-button type="primary" icon="Plus" @click="handleAddApi">新增接口</el-button>
       </div>
     </div>
@@ -44,7 +44,7 @@
         <el-table-column label="操作" width="200">
           <template #default="scope">
             <el-button link type="primary" size="small"> 编辑 </el-button>
-            <el-button link type="primary" size="small" @click="handleDeleteOne(scope)"> 删除 </el-button>
+            <el-button link type="primary" size="small" @click="handleDeleteOne(scope.row)"> 删除 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -63,18 +63,26 @@
     </div>
   </div>
 
-  <AddAndEditDrawer ref="drawer"></AddAndEditDrawer>
+  <AddAndEditDrawer ref="drawerRef" :project-id="projectId" @success="handleAddOrEditSuccess"></AddAndEditDrawer>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, reactive, computed } from 'vue'
 import { apiListApi } from '@/api/modules/mockApi'
 import { MockApi } from '../../../api/interface/index'
 import { formatTime } from '../../../utils/index'
 import { useRoute } from 'vue-router'
 import AddAndEditDrawer from '@/views/ApiList/components/AddAndEditDrawer.vue'
+import { apiBatchDeleteApi } from '../../../api/modules/mockApi'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
+onMounted(() => {
+  getApiList()
+})
 const route = useRoute()
+const projectId = computed(() => {
+  return Number(route.query?.id || 0)
+})
 
 const tableData = ref<MockApi.ResApiDetail[]>([])
 const paginationInfo = reactive({
@@ -82,41 +90,68 @@ const paginationInfo = reactive({
   pageNo: 1,
   pageSize: 20
 })
-onMounted(() => {
-  getApiList()
-})
+
 const queryParams: MockApi.ReqApiList = reactive({
-  projectId: Number(route.query?.id || 0),
+  projectId: projectId,
   folder: null,
   name: '',
   url: '',
   pageNo: paginationInfo.pageNo,
   pageSize: paginationInfo.pageSize
 })
+console.log('queryParams', queryParams, queryParams.projectId)
 const getApiList = async () => {
-  // const params: MockApi.ReqApiList = {
-  //   projectId: 13,
-  //   // name: string
-  //   // url: string
-  //   pageNo: paginationInfo.pageNo,
-  //   pageSize: paginationInfo.pageSize
-  // }
   const { data } = await apiListApi(queryParams)
   tableData.value = data.list
   paginationInfo.total = data.total
 }
 
-const handleDeleteOne = (data: any) => {
-  console.log('data', data)
+const handleDeleteOne = async (row: MockApi.ResApiDetail) => {
+  ElMessageBox.confirm('请确认是否删除该api', '提示', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(async () => {
+      const params: MockApi.ReqBatchDeleteApi = {
+        projectId: row.projectId,
+        ids: [row.id]
+      }
+      const { data } = await apiBatchDeleteApi(params)
+      ElMessage.success(data)
+      getApiList()
+    })
+    .catch(() => {})
 }
 
+const selectedList = ref<MockApi.ResApiDetail[]>([])
 const handleSelectionChange = (list: MockApi.ResApiDetail[]) => {
-  console.log('list', list)
+  selectedList.value = list
+}
+const batchDelete = () => {
+  ElMessageBox.confirm('请确认是否删除选中的api', '提示', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(async () => {
+      const params: MockApi.ReqBatchDeleteApi = {
+        projectId: projectId.value,
+        ids: selectedList.value.map((item) => item.id)
+      }
+      const { data } = await apiBatchDeleteApi(params)
+      ElMessage.success(data)
+      getApiList()
+    })
+    .catch(() => {})
 }
 
-const drawer = ref()
+const drawerRef = ref()
 const handleAddApi = () => {
-  drawer.value.open()
+  drawerRef.value.open()
+}
+const handleAddOrEditSuccess = () => {
+  getApiList()
 }
 </script>
 

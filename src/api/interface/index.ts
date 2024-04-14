@@ -143,7 +143,6 @@ export namespace MockApi {
     pageNo: number
     pageSize: number
   }
-
   export interface ResApiDetail {
     id: number
     projectId: number
@@ -161,5 +160,26 @@ export namespace MockApi {
     isDeleted: number
     createTime: Date | string
     updateTime: Date | string
+  }
+
+  enum OnStatus {
+    Off = 0,
+    On = 1
+  }
+  export interface ReqAddApi {
+    projectId: number
+    folderId: number | null
+    name: string
+    url: string
+    mockRule: string
+    method: string
+    delay: number
+    description?: string
+    on: OnStatus
+  }
+
+  export interface ReqBatchDeleteApi {
+    projectId: number
+    ids: number[]
   }
 }
