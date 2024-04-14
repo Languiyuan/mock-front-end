@@ -99,8 +99,11 @@ const queryParams: MockApi.ReqApiList = reactive({
   pageNo: paginationInfo.pageNo,
   pageSize: paginationInfo.pageSize
 })
-console.log('queryParams', queryParams, queryParams.projectId)
+
 const getApiList = async () => {
+  queryParams.pageNo = paginationInfo.pageNo
+  queryParams.pageSize = paginationInfo.pageSize
+
   const { data } = await apiListApi(queryParams)
   tableData.value = data.list
   paginationInfo.total = data.total
