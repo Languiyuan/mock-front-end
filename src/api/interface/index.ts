@@ -178,6 +178,10 @@ export namespace MockApi {
     on: OnStatus
   }
 
+  export interface ReqEditApi extends ReqAddApi {
+    id: number
+  }
+
   export interface ReqBatchDeleteApi {
     projectId: number
     ids: number[]

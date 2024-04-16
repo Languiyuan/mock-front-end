@@ -157,7 +157,7 @@ const handleAddApi = () => {
 
 const handleApiEdit = (row: MockApi.ResApiDetail) => {
   console.log('row', row)
-  drawerRef.value.open()
+  drawerRef.value.open(row)
 }
 const handleAddOrEditSuccess = () => {
   getApiList()

@@ -55,17 +55,21 @@
         </el-form>
       </div>
 
-      <div class="flex-1 h-full bg-black"></div>
+      <div class="flex-1 h-full bg-black">
+        <AceEditor ref="aceEditorRef"></AceEditor>
+      </div>
     </div>
   </el-drawer>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { apiAddApi } from '../../../api/modules/mockApi'
+import { apiAddApi, apiEditApi } from '../../../api/modules/mockApi'
 import { MockApi } from '../../../api/interface/index'
 import { ElMessage } from 'element-plus'
+import AceEditor from './AceEditor.vue'
+import { ElNotification } from 'element-plus'
 
 const $props = defineProps<{
   projectId: number
@@ -74,10 +78,37 @@ const $emit = defineEmits<{
   success: []
 }>()
 
-const drawer = ref(false)
+enum drawerTypeEnum {
+  add = 'add',
+  edit = 'edit'
+}
 
-const open = () => {
+const drawerType = ref<drawerTypeEnum>(drawerTypeEnum.add)
+const drawer = ref(false)
+const aceEditorRef = ref()
+const apiId = ref(0)
+
+const open = (apiData: MockApi.ResApiDetail | null = null) => {
   drawer.value = true
+  if (apiData) {
+    drawerType.value = drawerTypeEnum.edit
+    nextTick(() => {
+      aceEditorRef.value.setContent(JSON.parse(apiData.mockRule))
+    })
+
+    formData.value = {
+      name: apiData.name,
+      url: apiData.url,
+      method: apiData.method,
+      description: apiData.description,
+      delay: apiData.delay,
+      on: apiData.on
+    }
+
+    apiId.value = apiData.id
+  } else {
+    drawerType.value = drawerTypeEnum.add
+  }
 }
 
 const handleClose = () => {
@@ -96,8 +127,8 @@ interface FormData {
 }
 const formRef = ref<FormInstance>()
 const formData = ref<FormData>({
-  name: 'front-1' + new Date().getTime(),
-  url: '/test/front' + new Date().getTime(),
+  name: 'front-1',
+  url: '/test/front',
   method: 'GET',
   description: '',
   delay: 0,
@@ -128,15 +159,42 @@ const rules = reactive({
 const submit = () => {
   formRef.value?.validate(async (valid) => {
     if (!valid) return
-    const params: MockApi.ReqAddApi = {
-      projectId: $props.projectId,
-      folderId: null,
-      mockRule: JSON.stringify('front' + new Date().getTime()),
-      ...formData.value
+    const aceContent = aceEditorRef.value.content
+    try {
+      JSON.parse(aceContent)
+      JSON.stringify(aceContent)
+    } catch (error: any) {
+      ElNotification({
+        title: 'Error',
+        message: error,
+        type: 'error'
+      })
+      return
     }
+    console.log('---------------')
 
-    const { data } = await apiAddApi(params)
-    ElMessage.success(data)
+    if (drawerType.value === 'add') {
+      const params: MockApi.ReqAddApi = {
+        projectId: $props.projectId,
+        folderId: null,
+        mockRule: JSON.stringify(aceContent),
+        ...formData.value
+      }
+
+      const { data } = await apiAddApi(params)
+      ElMessage.success(data)
+    } else {
+      const params: MockApi.ReqEditApi = {
+        id: apiId.value,
+        projectId: $props.projectId,
+        folderId: null,
+        mockRule: JSON.stringify(aceContent),
+        ...formData.value
+      }
+
+      const { data } = await apiEditApi(params)
+      ElMessage.success(data)
+    }
 
     handleClose()
     $emit('success')

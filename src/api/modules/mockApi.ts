@@ -10,6 +10,10 @@ export const apiAddApi = (params: MockApi.ReqAddApi) => {
   return http.post<ResultData<string>>(PORT1 + '/api/add', params)
 }
 
+export const apiEditApi = (params: MockApi.ReqEditApi) => {
+  return http.post<ResultData<string>>(PORT1 + '/api/edit', params)
+}
+
 export const apiBatchDeleteApi = (params: MockApi.ReqBatchDeleteApi) => {
   return http.post<ResultData<string>>(PORT1 + '/api/batchRemove', params)
 }
