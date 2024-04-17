@@ -13,7 +13,12 @@
         <el-button type="primary" icon="Plus" @click="handleAddApi">新增接口</el-button>
       </div>
     </div>
-    <div class="h-[calc(100%_-_48px_-_48px)] pl-4 pr-4">
+
+    <div>
+      <FolderBar v-model="curFolderId" :folder-list="folderList"></FolderBar>
+    </div>
+
+    <div class="h-[calc(100%_-_48px_-_48px_-36px)] pl-4 pr-4">
       <el-table
         :data="tableData"
         height="100%"
@@ -22,11 +27,23 @@
         header-row-class-name="api-header-row-class-name"
         :default-sort="{ prop: 'createTime', order: 'descending' }"
         @selection-change="handleSelectionChange"
+        v-loading="tableLoading"
       >
         <el-table-column type="selection" width="55" />
         <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="name" label="名称" />
-        <el-table-column prop="method" label="请求类型" width="100" />
+        <el-table-column v-if="curFolderId === 0" prop="folderId" label="所属目录">
+          <template #default="scope">
+            {{ getFolderName(scope.row.folderId) }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="method" label="请求类型" width="100">
+          <template #default="scope">
+            <el-tag :type="scope.row.method === 'POST' ? 'primary' : 'success'" effect="plain">
+              {{ scope.row.method }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="on" label="请求状态" width="100">
           <template #default="scope">
             <el-tag :type="scope.row.on ? 'success' : 'danger'" effect="dark">
@@ -34,7 +51,20 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="url" label="接口地址" />
+        <el-table-column prop="url" label="接口地址">
+          <template #default="scope">
+            {{ scope.row.url }}
+            <el-popover placement="top" width="220px" trigger="hover">
+              <template #reference>
+                <el-icon class="text-xl ml-4"><DocumentCopy /></el-icon>
+              </template>
+              <div class="w-full flex items-center justify-around">
+                <el-button @click="handleCopy(scope.row, 'complete')">完整地址</el-button>
+                <el-button type="primary" @click="handleCopy(scope.row, 'api')">接口地址</el-button>
+              </div>
+            </el-popover>
+          </template>
+        </el-table-column>
         <el-table-column prop="description" label="接口描述" />
         <el-table-column prop="createTime" label="创建时间" sortable width="200">
           <template #default="scope">
@@ -45,6 +75,7 @@
           <template #default="scope">
             <el-button link type="primary" size="small" @click="handleApiEdit(scope.row)"> 编辑 </el-button>
             <el-button link type="primary" size="small" @click="handleDeleteOne(scope.row)"> 删除 </el-button>
+            <el-button link type="primary" size="small"> 移动目录 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -63,27 +94,54 @@
     </div>
   </div>
 
-  <AddAndEditDrawer ref="drawerRef" :project-id="projectId" @success="handleAddOrEditSuccess"></AddAndEditDrawer>
+  <AddAndEditDrawer ref="drawerRef" :project-id="projectId" :folder-id="curFolderId" @success="handleAddOrEditSuccess"></AddAndEditDrawer>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from 'vue'
+import { ref, onMounted, reactive, computed, watch } from 'vue'
 import { apiListApi } from '@/api/modules/mockApi'
-import { MockApi } from '../../../api/interface/index'
+import { MockApi, Folder } from '../../../api/interface/index'
 import { formatTime } from '../../../utils/index'
 import { useRoute } from 'vue-router'
 import AddAndEditDrawer from '@/views/ApiList/components/AddAndEditDrawer.vue'
 import { apiBatchDeleteApi } from '../../../api/modules/mockApi'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { useClipboard } from '@vueuse/core'
+import FolderBar from '@/views/ApiList/components/FolderBar.vue'
+import { folderListApi } from '../../../api/modules/project'
 
+const $props = defineProps<{
+  rootUrl: string
+}>()
 onMounted(() => {
+  getFolderList()
   getApiList()
 })
 const route = useRoute()
 const projectId = computed(() => {
-  return Number(route.query?.id || 0)
+  return Number(route.params?.projectId || 0)
 })
 
+// folder
+const curFolderId = ref(0)
+const folderList = ref<Folder.FolderDetail[]>([])
+const getFolderList = async () => {
+  const { data } = await folderListApi({ projectId: projectId.value })
+  folderList.value = data
+}
+watch(
+  () => curFolderId.value,
+  () => {
+    queryParams.folderId = curFolderId.value
+    getApiList()
+  }
+)
+const getFolderName = (id: number) => {
+  const data = folderList.value.find((item) => item.id === id)
+  return data?.name || '-'
+}
+
+// api table
 const tableData = ref<MockApi.ResApiDetail[]>([])
 const paginationInfo = reactive({
   total: 0,
@@ -93,20 +151,25 @@ const paginationInfo = reactive({
 
 const queryParams: MockApi.ReqApiList = reactive({
   projectId: projectId,
-  folder: null,
+  folderId: curFolderId.value,
   name: '',
   url: '',
   pageNo: paginationInfo.pageNo,
   pageSize: paginationInfo.pageSize
 })
-
+const tableLoading = ref(false)
 const getApiList = async () => {
+  tableLoading.value = true
   queryParams.pageNo = paginationInfo.pageNo
   queryParams.pageSize = paginationInfo.pageSize
-
-  const { data } = await apiListApi(queryParams)
-  tableData.value = data.list
-  paginationInfo.total = data.total
+  try {
+    const { data } = await apiListApi(queryParams)
+    tableLoading.value = false
+    tableData.value = data.list
+    paginationInfo.total = data.total
+  } catch (error) {
+    tableLoading.value = false
+  }
 }
 
 const handleDeleteOne = async (row: MockApi.ResApiDetail) => {
@@ -161,6 +224,17 @@ const handleApiEdit = (row: MockApi.ResApiDetail) => {
 }
 const handleAddOrEditSuccess = () => {
   getApiList()
+}
+
+const { copy } = useClipboard()
+const handleCopy = (row: MockApi.ResApiDetail, type: string) => {
+  if (type === 'complete') {
+    copy(`${$props.rootUrl}${row.url}`)
+  } else {
+    copy(row.url)
+  }
+
+  ElMessage.success('已复制')
 }
 </script>
 

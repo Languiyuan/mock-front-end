@@ -134,6 +134,27 @@ export namespace Project {
   }
 }
 
+export namespace Folder {
+  export interface AddFolderReq {
+    folderName: string
+    projectId: number
+  }
+  export interface GetFolderListReq {
+    projectId: number
+  }
+
+  export interface FolderDetail {
+    id: number
+    name: string
+    projectId: number
+    createUserId: number
+    updateUserId: number
+    isDeleted: number
+    createTime: Date | string
+    updateTime: Date | string
+  }
+}
+
 export namespace MockApi {
   export interface ReqApiList {
     projectId: number

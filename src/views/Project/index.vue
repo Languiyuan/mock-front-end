@@ -34,18 +34,12 @@
 
             <template #footer>
               <div class="flex items-center">
-                <div
-                  class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100"
-                  @click.stop="handleDelete(item)"
-                >
+                <div class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100" @click.stop="handleDelete(item)">
                   <el-icon>
                     <Delete />
                   </el-icon>
                 </div>
-                <div
-                  class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100"
-                  @click.stop="handleEdit(item)"
-                >
+                <div class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100" @click.stop="handleEdit(item)">
                   <el-icon>
                     <Setting />
                   </el-icon>
@@ -157,12 +151,13 @@ watch(searchInput, () => {
 
 // * 跳转apiList
 const handleGoApiList = (projectInfo: Project.ResPorjectDetail) => {
-  router.push({
-    name: 'apiList',
-    query: {
-      id: projectInfo.id
-    }
-  })
+  // router.push({
+  //   name: 'apiList',
+  //   query: {
+  //     id: projectInfo.id
+  //   }
+  // })
+  router.push({ path: `/apiList/${projectInfo.id}` })
 }
 
 // * 一行显示多少个card

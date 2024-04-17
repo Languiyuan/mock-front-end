@@ -14,19 +14,19 @@
     </el-breadcrumb>
 
     <!-- 项目信息 -->
-    <div class="flex items-center h-28 w-full mt-4 bg-white">
-      <InfoCard :info="projectDetail"></InfoCard>
+    <div class="flex items-center h-24 w-full mt-4 bg-white">
+      <ProjectKeyInfo :info="projectDetail"></ProjectKeyInfo>
       <div class="flex-1 h-full flex items-center justify-center">添加项目成员 待开发</div>
     </div>
 
-    <ApiTable></ApiTable>
+    <ApiTable :root-url="rootUrl"></ApiTable>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import InfoCard from '@/views/ApiList/components/InfoCard.vue'
+import ProjectKeyInfo from '@/views/ApiList/components/ProjectKeyInfo.vue'
 import { Project } from '@/api/interface'
 import { getProjectDetailApi } from '@/api/modules/project'
 import ApiTable from '@/views/ApiList/components/ApiTable.vue'
@@ -37,7 +37,7 @@ const router = useRouter()
 const projectId = ref(0)
 const loading = ref(false)
 onMounted(() => {
-  projectId.value = Number(route.query.id)
+  projectId.value = Number(route.params.projectId)
   getProjectDetail()
 })
 
@@ -63,6 +63,10 @@ const getProjectDetail = async () => {
     router.push('/project/index')
   }
 }
+
+const rootUrl = computed(() => {
+  return `${window.location.origin}/mock/${projectDetail.value.sign}${projectDetail.value.baseUrl}`
+})
 </script>
 
 <style lang="scss" scoped>

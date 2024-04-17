@@ -73,6 +73,7 @@ import { ElNotification } from 'element-plus'
 
 const $props = defineProps<{
   projectId: number
+  folderId: number
 }>()
 const $emit = defineEmits<{
   success: []
@@ -176,7 +177,7 @@ const submit = () => {
     if (drawerType.value === 'add') {
       const params: MockApi.ReqAddApi = {
         projectId: $props.projectId,
-        folderId: null,
+        folderId: $props.folderId || null,
         mockRule: JSON.stringify(aceContent),
         ...formData.value
       }

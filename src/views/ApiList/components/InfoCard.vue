@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { Project } from '@/api/interface'
-import { defineProps, computed } from 'vue'
+import { computed } from 'vue'
 import { formatTime } from '@/utils/index'
 import { useClipboard } from '@vueuse/core'
 import { ElMessage } from 'element-plus'

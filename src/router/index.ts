@@ -69,7 +69,7 @@ const router = createRouter({
           }
         },
         {
-          path: '/apiList/index',
+          path: '/apiList/:projectId',
           name: 'apiList',
           component: () => import('@/views/ApiList/index.vue'),
           meta: {
