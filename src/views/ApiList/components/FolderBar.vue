@@ -1,5 +1,5 @@
 <template>
-  <el-tabs v-model="curfolderId" type="card" editable class="demo-tabs pl-4 pr-4" @edit="handleTabsEdit">
+  <el-tabs v-model="curFolderId" type="card" editable class="demo-tabs pl-4 pr-4" @edit="handleTabsEdit">
     <el-tab-pane :name="0">
       <template #label>
         <div class="all-api">ALL_API</div>
@@ -9,10 +9,10 @@
   </el-tabs>
 </template>
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import type { TabPaneName } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { addFolderApi } from '@/api/modules/project'
+import { addFolderApi, deleteFolderApi } from '@/api/modules/project'
 import { useRoute } from 'vue-router'
 import { Folder } from '@/api/interface'
 
@@ -20,19 +20,27 @@ const $props = defineProps<{
   folderList: Folder.FolderDetail[]
 }>()
 
+const $emit = defineEmits<{
+  success: [number]
+}>()
+
 const route = useRoute()
 const projectId = computed(() => {
   return Number(route.params?.projectId || 0)
 })
-const curfolderId = defineModel('curfolderId', { type: Number })
-
+const curFolderId = defineModel('curFolderId', { type: Number })
+watch(
+  () => curFolderId.value,
+  () => {
+    console.log('curFolderId', curFolderId)
+    // defineModel 不更新的问题
+  }
+)
 const handleTabsEdit = (targetName: TabPaneName | undefined, action: 'remove' | 'add') => {
   if (action === 'add') {
     addFolder()
   } else if (action === 'remove') {
-    console.log('remove++++++++++')
-
-    curfolderId.value = 0
+    deleteFolder(targetName)
   }
 }
 
@@ -49,7 +57,33 @@ const addFolder = () => {
         folderName: value
       }
       const { data } = await addFolderApi(params)
-      ElMessage.success(data)
+      ElMessage.success(data.msg)
+      curFolderId.value = data.id
+      $emit('success', curFolderId.value)
+    })
+    .catch(() => {})
+}
+
+const deleteFolder = (targetName: TabPaneName | undefined) => {
+  if (!targetName) return
+  ElMessageBox.confirm('确认删除该目录（其中api不会被删除）?', '提示', {
+    confirmButtonText: '确认',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(async () => {
+      console.log('targetName', targetName)
+      const { data } = await deleteFolderApi({ id: targetName as number })
+      ElMessage({
+        type: 'success',
+        message: data
+      })
+
+      if (curFolderId.value === targetName) {
+        curFolderId.value = 0
+      }
+
+      $emit('success', curFolderId.value as number)
     })
     .catch(() => {})
 }

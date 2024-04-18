@@ -15,7 +15,7 @@
     </div>
 
     <div>
-      <FolderBar v-model="curFolderId" :folder-list="folderList"></FolderBar>
+      <FolderBar v-model="curFolderId" :folder-list="folderList" @success="handleRefreshFolderAndList"></FolderBar>
     </div>
 
     <div class="h-[calc(100%_-_48px_-_48px_-36px)] pl-4 pr-4">
@@ -32,7 +32,7 @@
         <el-table-column type="selection" width="55" />
         <el-table-column type="index" label="序号" width="80" />
         <el-table-column prop="name" label="名称" />
-        <el-table-column v-if="curFolderId === 0" prop="folderId" label="所属目录">
+        <el-table-column v-if="curFolderId === 0 || false" prop="folderId" label="所属目录">
           <template #default="scope">
             {{ getFolderName(scope.row.folderId) }}
           </template>
@@ -139,6 +139,12 @@ watch(
 const getFolderName = (id: number) => {
   const data = folderList.value.find((item) => item.id === id)
   return data?.name || '-'
+}
+
+const handleRefreshFolderAndList = (id: number) => {
+  curFolderId.value = id
+  getFolderList()
+  // getApiList()
 }
 
 // api table

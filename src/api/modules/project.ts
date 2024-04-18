@@ -25,7 +25,11 @@ export const getProjectDetailApi = (params: Project.DeleteProjectReq) => {
 
 // Folder
 export const addFolderApi = (params: Folder.AddFolderReq) => {
-  return http.post<string>(PORT1 + '/project/addFolder', params)
+  return http.post<Folder.AddFolderRes>(PORT1 + '/project/addFolder', params)
+}
+
+export const deleteFolderApi = (params: Folder.deleteFolderReq) => {
+  return http.post<string>(PORT1 + '/project/removeFolder', params)
 }
 
 export const folderListApi = (params: Folder.GetFolderListReq) => {

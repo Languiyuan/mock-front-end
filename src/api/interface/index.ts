@@ -139,8 +139,17 @@ export namespace Folder {
     folderName: string
     projectId: number
   }
+
+  export interface AddFolderRes {
+    id: number
+    msg: string
+  }
   export interface GetFolderListReq {
     projectId: number
+  }
+
+  export interface deleteFolderReq {
+    id: number
   }
 
   export interface FolderDetail {

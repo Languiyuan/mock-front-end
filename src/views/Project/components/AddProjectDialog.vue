@@ -59,7 +59,7 @@ const formData = reactive<Project.AddProjectReq>({
   description: ''
 })
 const validateBaseUrl = (rule: any, value: any, callback: any) => {
-  const regex = /^\// // 以斜杠开头的正则表达式
+  const regex = /^\/[a-zA-Z0-9/]+$/ // 以斜杠开头的正则表达式
   if (!regex.test(value)) {
     callback(new Error('请输入正确格式的baseUrl'))
   } else {
