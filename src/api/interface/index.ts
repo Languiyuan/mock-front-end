@@ -148,8 +148,13 @@ export namespace Folder {
     projectId: number
   }
 
-  export interface deleteFolderReq {
+  export interface DeleteFolderReq {
     id: number
+  }
+
+  export interface EditFolderReq {
+    id: number
+    folderName: string
   }
 
   export interface FolderDetail {
