@@ -135,24 +135,24 @@ export namespace Project {
 }
 
 export namespace Folder {
-  export interface AddFolderReq {
+  export interface ReqAddFolder {
     folderName: string
     projectId: number
   }
 
-  export interface AddFolderRes {
+  export interface ResAddFolder {
     id: number
     msg: string
   }
-  export interface GetFolderListReq {
+  export interface ReqGetFolderList {
     projectId: number
   }
 
-  export interface DeleteFolderReq {
+  export interface ReqDeleteFolder {
     id: number
   }
 
-  export interface EditFolderReq {
+  export interface ReqEditFolder {
     id: number
     folderName: string
   }
@@ -220,5 +220,10 @@ export namespace MockApi {
   export interface ReqBatchDeleteApi {
     projectId: number
     ids: number[]
+  }
+
+  export interface ReqMoveApi {
+    folderId: number | null
+    id: number
   }
 }

@@ -24,18 +24,18 @@ export const getProjectDetailApi = (params: Project.DeleteProjectReq) => {
 }
 
 // Folder
-export const addFolderApi = (params: Folder.AddFolderReq) => {
-  return http.post<Folder.AddFolderRes>(PORT1 + '/project/addFolder', params)
+export const addFolderApi = (params: Folder.ReqAddFolder) => {
+  return http.post<Folder.ResAddFolder>(PORT1 + '/project/addFolder', params)
 }
 
-export const deleteFolderApi = (params: Folder.DeleteFolderReq) => {
+export const deleteFolderApi = (params: Folder.ReqDeleteFolder) => {
   return http.post<string>(PORT1 + '/project/removeFolder', params)
 }
 
-export const editFolderApi = (params: Folder.EditFolderReq) => {
+export const editFolderApi = (params: Folder.ReqEditFolder) => {
   return http.post<string>(PORT1 + '/project/editFolder', params)
 }
 
-export const folderListApi = (params: Folder.GetFolderListReq) => {
+export const folderListApi = (params: Folder.ReqGetFolderList) => {
   return http.post<Folder.FolderDetail[]>(PORT1 + '/project/queryFolderList', params)
 }

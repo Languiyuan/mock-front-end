@@ -17,3 +17,7 @@ export const apiEditApi = (params: MockApi.ReqEditApi) => {
 export const apiBatchDeleteApi = (params: MockApi.ReqBatchDeleteApi) => {
   return http.post<ResultData<string>>(PORT1 + '/api/batchRemove', params)
 }
+
+export const apiMoveApi = (params: MockApi.ReqMoveApi) => {
+  return http.post<ResultData<string>>(PORT1 + '/api/moveApi', params)
+}

@@ -62,7 +62,7 @@ const addFolder = () => {
     inputErrorMessage: '字符长度要求2-15,不包含特殊字符'
   })
     .then(async ({ value }) => {
-      const params: Folder.AddFolderReq = {
+      const params: Folder.ReqAddFolder = {
         projectId: projectId.value,
         folderName: value
       }
@@ -113,7 +113,7 @@ const editFolder = (oldName: string, id: number) => {
         return
       }
 
-      const params: Folder.EditFolderReq = {
+      const params: Folder.ReqEditFolder = {
         id: id,
         folderName: value
       }

@@ -75,7 +75,7 @@
           <template #default="scope">
             <el-button link type="primary" size="small" @click="handleApiEdit(scope.row)"> 编辑 </el-button>
             <el-button link type="primary" size="small" @click="handleDeleteOne(scope.row)"> 删除 </el-button>
-            <el-button link type="primary" size="small"> 移动目录 </el-button>
+            <el-button v-if="folderList.length" link type="primary" size="small" @click="handleMoveApi(scope.row)"> 移动目录 </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -95,6 +95,7 @@
   </div>
 
   <AddAndEditDrawer ref="drawerRef" :project-id="projectId" :folder-id="curFolderId" @success="handleAddOrEditSuccess"></AddAndEditDrawer>
+  <ApiMoveDialog ref="apiMoveRef" :folder-list="folderList" @success="getApiList"></ApiMoveDialog>
 </template>
 
 <script setup lang="ts">
@@ -109,6 +110,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { useClipboard } from '@vueuse/core'
 import FolderBar from '@/views/ApiList/components/FolderBar.vue'
 import { folderListApi } from '../../../api/modules/project'
+import ApiMoveDialog from './ApiMoveDialog.vue'
 
 const $props = defineProps<{
   rootUrl: string
@@ -223,11 +225,15 @@ const handleAddApi = () => {
 }
 
 const handleApiEdit = (row: MockApi.ResApiDetail) => {
-  console.log('row', row)
   drawerRef.value.open(row)
 }
 const handleAddOrEditSuccess = () => {
   getApiList()
+}
+
+const apiMoveRef = ref()
+const handleMoveApi = (row: MockApi.ResApiDetail) => {
+  apiMoveRef.value.open(row.id)
 }
 
 const { copy } = useClipboard()
