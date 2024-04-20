@@ -1,15 +1,25 @@
 <template>
-  <el-tabs v-model="curFolderId" type="card" editable class="demo-tabs pl-4 pr-4" @edit="handleTabsEdit">
-    <el-tab-pane :name="0">
-      <template #label>
-        <div class="all-api">ALL_API</div>
-      </template>
-    </el-tab-pane>
-    <el-tab-pane v-for="item in $props.folderList" :key="item.id" :label="item.name" :name="item.id"> </el-tab-pane>
-  </el-tabs>
+  <div class="relative w-full h-[38px]">
+    <el-tabs v-model="curFolderId" type="card" class="demo-tabs pl-4 pr-4" @edit="handleTabsEdit">
+      <el-tab-pane :name="0">
+        <template #label>
+          <div class="all-api">ALL_API</div>
+        </template>
+      </el-tab-pane>
+      <el-tab-pane v-for="item in $props.folderList" :key="item.id" :name="item.id">
+        <template #label>
+          <div>{{ item.name }}</div>
+        </template>
+      </el-tab-pane>
+    </el-tabs>
+
+    <div class="absolute right-4 top-[50%] -translate-y-1/2 cursor-pointer pr-4">
+      <el-icon title="新增目录"><FolderAdd /></el-icon>
+    </div>
+  </div>
 </template>
 <script lang="ts" setup>
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import type { TabPaneName } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { addFolderApi, deleteFolderApi } from '@/api/modules/project'
@@ -28,14 +38,10 @@ const route = useRoute()
 const projectId = computed(() => {
   return Number(route.params?.projectId || 0)
 })
-const curFolderId = defineModel('curFolderId', { type: Number })
-watch(
-  () => curFolderId.value,
-  () => {
-    console.log('curFolderId', curFolderId)
-    // defineModel 不更新的问题
-  }
-)
+const curFolderId = defineModel({ type: Number })
+
+curFolderId.value = 0
+
 const handleTabsEdit = (targetName: TabPaneName | undefined, action: 'remove' | 'add') => {
   if (action === 'add') {
     addFolder()

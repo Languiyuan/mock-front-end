@@ -141,10 +141,8 @@ const getFolderName = (id: number) => {
   return data?.name || '-'
 }
 
-const handleRefreshFolderAndList = (id: number) => {
-  curFolderId.value = id
+const handleRefreshFolderAndList = () => {
   getFolderList()
-  // getApiList()
 }
 
 // api table
