@@ -1,6 +1,6 @@
 import { PORT1 } from '@/api/config/servicePort'
 import http from '@/api'
-import { Project, Folder } from '../interface'
+import { Project, Folder, Member } from '../interface'
 
 // get projectList
 export const projectListApi = (params: Project.ProjectReq) => {
@@ -38,4 +38,9 @@ export const editFolderApi = (params: Folder.ReqEditFolder) => {
 
 export const folderListApi = (params: Folder.ReqGetFolderList) => {
   return http.post<Folder.FolderDetail[]>(PORT1 + '/project/queryFolderList', params)
+}
+
+// Members
+export const getMembersApi = (params: Member.ReqGetMembers) => {
+  return http.post<Member.MemberDetial[]>(PORT1 + '/project/queryMembers', params)
 }

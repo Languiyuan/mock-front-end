@@ -81,6 +81,20 @@ const router = createRouter({
             isAffix: true,
             isKeepAlive: true
           }
+        },
+        {
+          path: '/apiHistory/:apiId',
+          name: 'apiHistory',
+          component: () => import('@/views/ApiHistory/index.vue'),
+          meta: {
+            icon: '',
+            title: '接口历史记录',
+            isLink: '',
+            isHide: false,
+            isFull: false,
+            isAffix: true,
+            isKeepAlive: true
+          }
         }
       ]
     }

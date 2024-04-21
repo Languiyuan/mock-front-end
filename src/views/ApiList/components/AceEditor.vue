@@ -22,14 +22,7 @@
       </div>
     </div>
     <div class="flex-1 w-full">
-      <v-ace-editor
-        :key="editorKey"
-        v-model:value="content"
-        lang="json"
-        :theme="aceTheme"
-        style="height: 100%"
-        :options="options"
-      />
+      <v-ace-editor :key="editorKey" v-model:value="content" lang="json" :theme="aceTheme" style="height: 100%" :options="options" />
     </div>
   </div>
 </template>
@@ -55,7 +48,7 @@ const options: Partial<Ace.EditorOptions> = reactive({
   tabSize: 2, // tab锁进字符
   fontSize: 14, // 设置字号
   wrap: false, // 是否换行
-  readonly: false, // 是否可编辑
+  readOnly: false, // 是否可编辑
   newLineMode: 'windows' // 换行风格
   // minLines: 10, // 最小行数，minLines和maxLines同时设置之后，可以不用给editor再设置高度
   // maxLines: 50, // 最大行数

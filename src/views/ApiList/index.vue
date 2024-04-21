@@ -60,6 +60,7 @@ const getProjectDetail = async () => {
     loading.value = false
     projectDetail.value = data
   } catch (error) {
+    loading.value = false
     router.push('/project/index')
   }
 }

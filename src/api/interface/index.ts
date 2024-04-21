@@ -19,7 +19,7 @@ export interface ResPage<T> {
 
 // 分页请求参数
 export interface ReqPage {
-  pageNum: number
+  pageNo: number
   pageSize: number
 }
 
@@ -169,6 +169,21 @@ export namespace Folder {
   }
 }
 
+export namespace Member {
+  export interface ReqGetMembers {
+    projectId: number
+  }
+
+  export interface MemberDetial {
+    id: number
+    userId: number
+    projectId: number
+    isCreateUser: number
+    isDeleted: number
+    username: string
+  }
+}
+
 export namespace MockApi {
   export interface ReqApiList {
     projectId: number
@@ -195,6 +210,10 @@ export namespace MockApi {
     isDeleted: number
     createTime: Date | string
     updateTime: Date | string
+  }
+
+  export interface ReqApiDetail {
+    id: number
   }
 
   enum OnStatus {
@@ -225,5 +244,14 @@ export namespace MockApi {
   export interface ReqMoveApi {
     folderId: number | null
     id: number
+  }
+
+  export interface ReqApiHistory extends ReqPage {
+    apiId: number
+  }
+
+  export interface ResApiHistory extends ResApiDetail {
+    apiId: number
+    operateType: string
   }
 }

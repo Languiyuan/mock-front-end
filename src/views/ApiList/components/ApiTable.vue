@@ -75,7 +75,20 @@
           <template #default="scope">
             <el-button link type="primary" size="small" @click="handleApiEdit(scope.row)"> 编辑 </el-button>
             <el-button link type="primary" size="small" @click="handleDeleteOne(scope.row)"> 删除 </el-button>
-            <el-button v-if="folderList.length" link type="primary" size="small" @click="handleMoveApi(scope.row)"> 移动目录 </el-button>
+            <template v-if="folderList.length">
+              <el-button link type="primary" size="small" @click="handleMoveApi(scope.row)"> 移动目录 </el-button>
+            </template>
+            <template v-else>
+              <el-popover placement="bottom" width="120px" popper-style="min-width: 120px !important" trigger="hover">
+                <template #reference>
+                  <el-button link type="primary" size="small"> 更多 </el-button>
+                </template>
+                <div class="w-full flex flex-col">
+                  <el-button link type="primary" size="small" @click="handleMoveApi(scope.row)"> 移动目录 </el-button>
+                  <el-button link type="primary" size="small" class="!ml-0 mt-2" @click="handleGoHistory(scope.row)"> 历史记录 </el-button>
+                </div>
+              </el-popover>
+            </template>
           </template>
         </el-table-column>
       </el-table>
@@ -103,7 +116,7 @@ import { ref, onMounted, reactive, computed, watch } from 'vue'
 import { apiListApi } from '@/api/modules/mockApi'
 import { MockApi, Folder } from '../../../api/interface/index'
 import { formatTime } from '../../../utils/index'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AddAndEditDrawer from '@/views/ApiList/components/AddAndEditDrawer.vue'
 import { apiBatchDeleteApi } from '../../../api/modules/mockApi'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -245,6 +258,11 @@ const handleCopy = (row: MockApi.ResApiDetail, type: string) => {
   }
 
   ElMessage.success('已复制')
+}
+
+const router = useRouter()
+const handleGoHistory = (row: MockApi.ResApiDetail) => {
+  router.push({ path: `/apiHistory/${row.id}` })
 }
 </script>
 

@@ -1,14 +1,15 @@
 <template>
   <el-main>
-    <router-view v-slot="{ Component, route }">
+    <!-- <router-view v-slot="{ Component, route }">
       <transition appear name="fade-transform" mode="out-in">
         <component :is="Component" v-if="isRouterShow" :key="route.fullPath" />
 
-        <!-- <keep-alive :include="keepAliveName">
+        <keep-alive :include="keepAliveName">
           <component :is="Component" v-if="isRouterShow" :key="route.fullPath" />
-        </keep-alive> -->
+        </keep-alive>
       </transition>
-    </router-view>
+    </router-view> -->
+    <RouterView></RouterView>
   </el-main>
   <el-footer v-if="true">
     <Footer />
