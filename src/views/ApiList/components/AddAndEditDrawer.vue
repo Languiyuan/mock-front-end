@@ -188,7 +188,7 @@ const submit = () => {
       const params: MockApi.ReqEditApi = {
         id: apiId.value,
         projectId: $props.projectId,
-        folderId: null,
+        folderId: $props.folderId || null,
         mockRule: JSON.stringify(aceContent),
         ...formData.value
       }

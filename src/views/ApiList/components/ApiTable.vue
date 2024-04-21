@@ -75,7 +75,7 @@
           <template #default="scope">
             <el-button link type="primary" size="small" @click="handleApiEdit(scope.row)"> 编辑 </el-button>
             <el-button link type="primary" size="small" @click="handleDeleteOne(scope.row)"> 删除 </el-button>
-            <template v-if="folderList.length">
+            <template v-if="!folderList.length">
               <el-button link type="primary" size="small" @click="handleMoveApi(scope.row)"> 移动目录 </el-button>
             </template>
             <template v-else>
