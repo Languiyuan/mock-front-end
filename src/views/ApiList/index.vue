@@ -16,10 +16,14 @@
     <!-- 项目信息 -->
     <div class="flex items-center h-24 w-full mt-4 bg-white">
       <ProjectKeyInfo :info="projectDetail"></ProjectKeyInfo>
-      <div class="flex-1 h-full flex items-center justify-center">添加项目成员 待开发</div>
+      <div class="flex-1 h-full flex items-center justify-center">
+        <el-button size="large" type="primary" icon="Plus" text @click="handleAddMember">添加项目成员</el-button>
+      </div>
     </div>
 
     <ApiTable :root-url="rootUrl"></ApiTable>
+
+    <MembersManage ref="membersManageDialog"></MembersManage>
   </div>
 </template>
 
@@ -30,6 +34,7 @@ import ProjectKeyInfo from '@/views/ApiList/components/ProjectKeyInfo.vue'
 import { Project } from '@/api/interface'
 import { getProjectDetailApi } from '@/api/modules/project'
 import ApiTable from '@/views/ApiList/components/ApiTable.vue'
+import MembersManage from '@/views/ApiList/components/MembersManage.vue'
 
 // 获取项目详情
 const route = useRoute()
@@ -68,6 +73,11 @@ const getProjectDetail = async () => {
 const rootUrl = computed(() => {
   return `${window.location.origin}/mock/${projectDetail.value.sign}${projectDetail.value.baseUrl}`
 })
+
+const membersManageDialog = ref()
+const handleAddMember = () => {
+  membersManageDialog.value.open()
+}
 </script>
 
 <style lang="scss" scoped>

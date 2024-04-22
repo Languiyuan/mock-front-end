@@ -44,3 +44,11 @@ export const folderListApi = (params: Folder.ReqGetFolderList) => {
 export const getMembersApi = (params: Member.ReqGetMembers) => {
   return http.post<Member.MemberDetial[]>(PORT1 + '/project/queryMembers', params)
 }
+
+export const addMemberApi = (params: Member.ReqAddMember) => {
+  return http.post<string>(PORT1 + '/project/addProjectMember', params)
+}
+
+export const deleteMemberApi = (params: Member.ReqDeleteMember) => {
+  return http.post<string>(PORT1 + '/project/removeProjectMember', params)
+}

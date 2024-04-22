@@ -57,6 +57,11 @@ export namespace Login {
 
 // 用户管理模块
 export namespace User {
+  export interface ResUsersByUsername {
+    id: number
+    username: string
+  }
+
   export interface ReqUserParams extends ReqPage {
     username: string
     gender: number
@@ -182,6 +187,13 @@ export namespace Member {
     isDeleted: number
     username: string
   }
+
+  export interface ReqAddMember {
+    projectId: number
+    memberId: number
+  }
+
+  export interface ReqDeleteMember extends ReqAddMember {}
 }
 
 export namespace MockApi {

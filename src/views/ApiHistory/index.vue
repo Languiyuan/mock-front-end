@@ -84,7 +84,7 @@ import { useUserStore } from '@/stores/modules/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const userStore = useUserStore()
-userStore.$state
+
 const route = useRoute()
 const router = useRouter()
 const apiId = computed(() => {
@@ -158,10 +158,7 @@ const getMembers = async () => {
   membersList.value = data
 }
 const handleGetMember = (updateUserId: number) => {
-  console.log('membersList', membersList)
-  console.log('updateUserId', updateUserId)
   const data = membersList.value.find((item) => item.userId === updateUserId)
-  console.log('data', data)
   return data ? data.username : updateUserId
 }
 
