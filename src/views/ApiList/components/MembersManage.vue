@@ -14,7 +14,7 @@
         <el-button class="ml-4" type="primary" @click="handleAddMember">确认添加</el-button>
       </div>
       <div class="w-full h-[calc(100%_-_40px)] pt-2">
-        <el-table height="100%" :data="membersList" header-row-class-name="members-header-row-class-name">
+        <el-table height="100%" :data="$props.membersList" header-row-class-name="members-header-row-class-name">
           <el-table-column prop="username" label="姓名" />
           <el-table-column prop="operate" label="操作">
             <template #default="scope">
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { getMembersApi } from '@/api/modules/project'
+// import { getMembersApi } from '@/api/modules/project'
 import { ref, watch, computed } from 'vue'
 import { Member, User } from '../../../api/interface/index'
 import { useRoute } from 'vue-router'
@@ -41,10 +41,19 @@ import { useUserStore } from '@/stores/modules/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { addMemberApi, deleteMemberApi } from '../../../api/modules/project'
 
+const $props = defineProps<{
+  membersList: Member.MemberDetial[]
+}>()
+const $emit = defineEmits<{
+  success: []
+}>()
+
 const dialogVisible = ref(false)
 const open = () => {
   dialogVisible.value = true
-  getMembers()
+  curSelectItem.value = null
+  searchValue.value = ''
+  // getMembers()
 }
 const route = useRoute()
 const projectId = computed(() => {
@@ -53,9 +62,6 @@ const projectId = computed(() => {
 
 const userStore = useUserStore()
 const userInfo = computed(() => userStore.$state.userInfo)
-// onMounted(() => {
-//   getMembers()
-// })
 
 const searchValue = ref('')
 
@@ -101,15 +107,16 @@ const handleAddMember = async () => {
     memberId: curSelectItem.value.id
   }
   const { data } = await addMemberApi(params)
-  await getMembers()
+  $emit('success')
+  // await getMembers()
   ElMessage.success(data)
 }
 
-const membersList = ref<Member.MemberDetial[]>([])
-const getMembers = async () => {
-  const { data } = await getMembersApi({ projectId: projectId.value })
-  membersList.value = data.filter((item) => item.isCreateUser === 0)
-}
+// const membersList = ref<Member.MemberDetial[]>([])
+// const getMembers = async () => {
+//   const { data } = await getMembersApi({ projectId: projectId.value })
+//   membersList.value = data.filter((item) => item.isCreateUser === 0)
+// }
 
 const handleMemberDelete = async (row: Member.MemberDetial) => {
   ElMessageBox.confirm('请确认是否删除', '提示', {
@@ -123,7 +130,9 @@ const handleMemberDelete = async (row: Member.MemberDetial) => {
         projectId: row.projectId
       }
       const { data } = await deleteMemberApi(params)
-      await getMembers()
+      // await getMembers()
+      $emit('success')
+
       ElMessage.success(data)
     })
     .catch(() => {})

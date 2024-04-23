@@ -16,14 +16,29 @@
     <!-- 项目信息 -->
     <div class="flex items-center h-24 w-full mt-4 bg-white">
       <ProjectKeyInfo :info="projectDetail"></ProjectKeyInfo>
-      <div class="flex-1 h-full flex items-center justify-center">
-        <el-button size="large" type="primary" icon="Plus" text @click="handleAddMember">添加项目成员</el-button>
+      <div class="flex-1 h-full flex flex-wrap items-center justify-center">
+        <template v-if="isCreateUser">
+          <template v-if="membersList.length">
+            <el-tag v-for="(item, index) in membersList" :key="'member' + index" type="primary" class="mr-1" effect="light" size="large">{{
+              item.username
+            }}</el-tag>
+            <el-button type="primary" icon="Plus" text @click="handleAddMember"></el-button>
+          </template>
+          <template v-else>
+            <el-button size="large" type="primary" icon="Plus" text @click="handleAddMember">添加项目成员</el-button>
+          </template>
+        </template>
+        <template v-else>
+          <el-tag v-for="(item, index) in membersList" :key="'member' + index" type="primary" class="mr-1" effect="light" size="large">{{
+            item.username
+          }}</el-tag>
+        </template>
       </div>
     </div>
 
     <ApiTable :root-url="rootUrl"></ApiTable>
 
-    <MembersManage ref="membersManageDialog"></MembersManage>
+    <MembersManage ref="membersManageDialog" :members-list="membersList" @success="getMembers"></MembersManage>
   </div>
 </template>
 
@@ -35,17 +50,24 @@ import { Project } from '@/api/interface'
 import { getProjectDetailApi } from '@/api/modules/project'
 import ApiTable from '@/views/ApiList/components/ApiTable.vue'
 import MembersManage from '@/views/ApiList/components/MembersManage.vue'
+import { Member } from '../../api/interface/index'
+import { getMembersApi } from '../../api/modules/project'
+import { useUserStore } from '@/stores/modules/user'
 
 // 获取项目详情
 const route = useRoute()
 const router = useRouter()
-const projectId = ref(0)
 const loading = ref(false)
-onMounted(() => {
-  projectId.value = Number(route.params.projectId)
-  getProjectDetail()
-})
+const userStore = useUserStore()
+const userInfo = computed(() => userStore.$state.userInfo)
 
+const projectId = computed(() => Number(route.params.projectId))
+
+onMounted(() => {
+  getProjectDetail()
+  getMembers()
+})
+const isCreateUser = ref(false)
 const projectDetail = ref<Project.ResPorjectDetail>({
   baseUrl: '',
   createUserId: 0,
@@ -64,6 +86,7 @@ const getProjectDetail = async () => {
     const { data } = await getProjectDetailApi({ projectId: projectId.value })
     loading.value = false
     projectDetail.value = data
+    isCreateUser.value = userInfo.value.id === data.createUserId
   } catch (error) {
     loading.value = false
     router.push('/project/index')
@@ -73,6 +96,13 @@ const getProjectDetail = async () => {
 const rootUrl = computed(() => {
   return `${window.location.origin}/mock/${projectDetail.value.sign}${projectDetail.value.baseUrl}`
 })
+
+// 包含创建者
+const membersList = ref<Member.MemberDetial[]>([])
+const getMembers = async () => {
+  const { data } = await getMembersApi({ projectId: projectId.value })
+  membersList.value = data.filter((item) => item.isCreateUser === 0)
+}
 
 const membersManageDialog = ref()
 const handleAddMember = () => {
