@@ -7,7 +7,7 @@ export const useUserStore = defineStore({
   state: (): UserState => ({
     accessToken: '',
     refreshToken: '',
-    userInfo: { username: '', id: -1 }
+    userInfo: { username: '', id: -1, isAdmin: false }
   }),
   getters: {},
   actions: {
@@ -19,6 +19,12 @@ export const useUserStore = defineStore({
     // Set setUserInfo
     setUserInfo(userInfo: UserState['userInfo']) {
       this.userInfo = userInfo
+    },
+    // reset UserInfo login out
+    resetInfo() {
+      this.accessToken = ''
+      this.refreshToken = ''
+      this.userInfo = { username: '', id: -1, isAdmin: false }
     }
   },
   persist: piniaPersistConfig('mock-user')

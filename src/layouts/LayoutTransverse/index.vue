@@ -40,27 +40,14 @@ import { useRoute, useRouter } from 'vue-router'
 import Main from '@/layouts/components/Main/index.vue'
 import ToolBarRight from '@/layouts/components/Header/ToolBarRight.vue'
 import SubMenu from '@/layouts/components/Menu/SubMenu.vue'
+import { useUserStore } from '@/stores/modules/user'
 
 const title = import.meta.env.VITE_GLOB_APP_TITLE
+const userStore = useUserStore()
 
 const route = useRoute()
 const router = useRouter()
-const menuList = [
-  {
-    path: '/home/index',
-    name: 'home',
-    component: '/home/index',
-    meta: {
-      icon: 'HomeFilled',
-      title: '首页',
-      isLink: '',
-      isHide: false,
-      isFull: false,
-      isAffix: true,
-      isKeepAlive: true
-    },
-    children: []
-  },
+const defaultMenuList = [
   {
     path: '/project/index',
     name: 'project',
@@ -92,6 +79,55 @@ const menuList = [
     children: []
   }
 ]
+
+const menuList = computed(() => {
+  const adminRoute = {
+    path: '/Manager/index',
+    name: 'manager',
+    component: '/Manager/index',
+    meta: {
+      icon: 'Grid',
+      title: '管理员页面',
+      isLink: '',
+      isHide: false,
+      isFull: false,
+      isAffix: true,
+      isKeepAlive: true
+    },
+    children: [
+      {
+        path: '/userManage/index',
+        name: 'manager',
+        component: '/UserManage/index',
+        meta: {
+          icon: 'Grd',
+          title: '成员管理',
+          isLink: '',
+          isHide: false,
+          isFull: false,
+          isAffix: true,
+          isKeepAlive: true
+        }
+      },
+      {
+        path: '/projectManage/index',
+        name: 'manager',
+        component: '/ProjectManage/index',
+        meta: {
+          icon: '',
+          title: '项目管理',
+          isLink: '',
+          isHide: false,
+          isFull: false,
+          isAffix: true,
+          isKeepAlive: true
+        }
+      }
+    ]
+  }
+
+  return userStore.$state.userInfo.isAdmin ? [...defaultMenuList, adminRoute] : defaultMenuList
+})
 const activeMenu = computed(() => (route.meta.activeMenu ? route.meta.activeMenu : route.path) as string)
 
 const handleClickMenu = (subItem: any) => {

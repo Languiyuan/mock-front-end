@@ -69,6 +69,51 @@ const router = createRouter({
           }
         },
         {
+          path: '/manager/index',
+          name: 'manager',
+          component: () => import('@/views/Manager/index.vue'),
+          redirect: '/userManage/index',
+          meta: {
+            icon: 'Grid',
+            title: '管理员',
+            isLink: '',
+            isHide: false,
+            isFull: false,
+            isAffix: true,
+            isKeepAlive: true
+          },
+          children: [
+            {
+              path: '/userManage/index',
+              name: 'userManager',
+              component: () => import('@/views/Manager/UserManage/index.vue'),
+              meta: {
+                icon: '',
+                title: '成员管理',
+                isLink: '',
+                isHide: false,
+                isFull: false,
+                isAffix: true,
+                isKeepAlive: true
+              }
+            },
+            {
+              path: '/projectManage/index',
+              name: 'projectManage',
+              component: () => import('@/views/Manager/ProjectManage/index.vue'),
+              meta: {
+                icon: '',
+                title: '项目管理',
+                isLink: '',
+                isHide: false,
+                isFull: false,
+                isAffix: true,
+                isKeepAlive: true
+              }
+            }
+          ]
+        },
+        {
           path: '/apiList/:projectId',
           name: 'apiList',
           component: () => import('@/views/ApiList/index.vue'),

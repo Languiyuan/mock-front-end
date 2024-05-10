@@ -6,5 +6,5 @@ export interface TokenData {
 
 /* UserState */
 export interface UserState extends TokenData {
-  userInfo: { username: string; id: number }
+  userInfo: { username: string; id: number; isAdmin: boolean }
 }

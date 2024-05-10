@@ -1,12 +1,14 @@
 <template>
   <div class="tool-bar-ri">
     <span class="username">{{ username }}</span>
+    <Avatar></Avatar>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useUserStore } from '@/stores/modules/user'
+import Avatar from './components/Avatar.vue'
 
 const userStore = useUserStore()
 const username = computed(() => userStore.userInfo.username)

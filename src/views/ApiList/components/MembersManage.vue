@@ -32,7 +32,6 @@
 </template>
 
 <script setup lang="ts">
-// import { getMembersApi } from '@/api/modules/project'
 import { ref, watch, computed } from 'vue'
 import { Member, User } from '../../../api/interface/index'
 import { useRoute } from 'vue-router'
@@ -53,7 +52,6 @@ const open = () => {
   dialogVisible.value = true
   curSelectItem.value = null
   searchValue.value = ''
-  // getMembers()
 }
 const route = useRoute()
 const projectId = computed(() => {
@@ -108,15 +106,8 @@ const handleAddMember = async () => {
   }
   const { data } = await addMemberApi(params)
   $emit('success')
-  // await getMembers()
   ElMessage.success(data)
 }
-
-// const membersList = ref<Member.MemberDetial[]>([])
-// const getMembers = async () => {
-//   const { data } = await getMembersApi({ projectId: projectId.value })
-//   membersList.value = data.filter((item) => item.isCreateUser === 0)
-// }
 
 const handleMemberDelete = async (row: Member.MemberDetial) => {
   ElMessageBox.confirm('请确认是否删除', '提示', {
@@ -130,7 +121,6 @@ const handleMemberDelete = async (row: Member.MemberDetial) => {
         projectId: row.projectId
       }
       const { data } = await deleteMemberApi(params)
-      // await getMembers()
       $emit('success')
 
       ElMessage.success(data)

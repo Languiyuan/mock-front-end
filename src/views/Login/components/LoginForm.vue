@@ -21,15 +21,7 @@
   </el-form>
   <div class="flex justify-center w-full mt-10 whitespace-nowrap">
     <el-button class="w-[184px]" :icon="CircleClose" round size="large" @click="resetForm(loginFormRef)"> 重置 </el-button>
-    <el-button
-      class="w-[184px]"
-      :icon="UserFilled"
-      round
-      size="large"
-      type="primary"
-      :loading="loading"
-      @click="login(loginFormRef)"
-    >
+    <el-button class="w-[184px]" :icon="UserFilled" round size="large" type="primary" :loading="loading" @click="login(loginFormRef)">
       登录
     </el-button>
   </div>
@@ -82,8 +74,8 @@ const login = (formEl: FormInstance | undefined) => {
       const password = md5.end()
       const { data } = await loginApi({ ...loginForm, password })
       userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
-      const { username, id } = data.userInfo
-      userStore.setUserInfo({ username, id })
+      const { username, id, isAdmin } = data.userInfo
+      userStore.setUserInfo({ username, id, isAdmin })
 
       // 2.添加动态路由
       // await initDynamicRouter()
