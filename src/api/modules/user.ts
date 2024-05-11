@@ -10,6 +10,11 @@ export const findUserByUsernameApi = (params: { username: string }) => {
   return http.post<User.ResUsersByUsername[]>(PORT1 + `/user/findUserByUsername`, params)
 }
 
+// 更新密码
+export const updateUserPasswordApi = (params: { password: string }) => {
+  return http.post<string>(PORT1 + `/user/updatePassword`, params)
+}
+
 // 获取用户列表
 // export const getUserList = (params: User.ReqUserParams) => {
 //   return http.post<ResPage<User.ResUserList>>(PORT1 + `/user/list`, params)

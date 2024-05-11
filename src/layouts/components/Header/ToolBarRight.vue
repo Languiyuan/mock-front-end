@@ -1,6 +1,6 @@
 <template>
   <div class="tool-bar-ri">
-    <span class="username">{{ username }}</span>
+    <span class="username font-bold">{{ username }}</span>
     <Avatar></Avatar>
   </div>
 </template>
@@ -25,13 +25,11 @@ const username = computed(() => userStore.userInfo.username)
     align-items: center;
     & > * {
       margin-left: 21px;
-      color: var(--el-header-text-color);
     }
   }
   .username {
     margin: 0 20px;
     font-size: 15px;
-    color: var(--el-header-text-color);
   }
 }
 </style>
