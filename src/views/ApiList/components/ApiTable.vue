@@ -8,7 +8,7 @@
       </div>
       <div class="h-full flex items-center">
         <el-button type="primary" icon="Upload">导入</el-button>
-        <el-button type="primary" icon="Download">导出</el-button>
+        <el-button type="primary" icon="Download" @click="handleExport">导出</el-button>
         <el-button type="primary" icon="Delete" @click="batchDelete" :disabled="!selectedList.length">批量删除</el-button>
         <el-button type="primary" icon="Plus" @click="handleAddApi">新增接口</el-button>
       </div>
@@ -128,6 +128,7 @@ import { useClipboard } from '@vueuse/core'
 import FolderBar from '@/views/ApiList/components/FolderBar.vue'
 import { folderListApi } from '../../../api/modules/project'
 import ApiMoveDialog from './ApiMoveDialog.vue'
+import { exportProjectAllApi } from '@/api/modules/mockApi'
 
 const $props = defineProps<{
   rootUrl: string
@@ -233,6 +234,24 @@ const batchDelete = () => {
       getApiList()
     })
     .catch(() => {})
+}
+
+// 导出
+const handleExport = async () => {
+  try {
+    const params = { projectId: projectId.value }
+    const response = await exportProjectAllApi(params)
+    let a = document.createElement('a')
+    a.download = `lan_mock_project_${new Date().getTime()}.json`
+    a.style.display = 'none'
+    let blob = new Blob([response], { type: response.type })
+    a.href = window.URL.createObjectURL(blob)
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  } catch (error) {
+    console.error('导出接口文件时出错:', error)
+  }
 }
 
 const drawerRef = ref()

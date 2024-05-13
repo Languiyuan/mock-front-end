@@ -29,3 +29,8 @@ export const apiDetailApi = (params: MockApi.ReqApiDetail) => {
 export const apiHistoryListApi = (params: MockApi.ReqApiHistory) => {
   return http.post<ResPage<MockApi.ResApiHistory>>(PORT1 + '/api/queryHistory', params)
 }
+
+// 导出项目所有接口 json文件
+export const exportProjectAllApi = (params: { projectId: number }) => {
+  return http.download(PORT1 + '/api/exportProjectAllApi', params)
+}
