@@ -57,6 +57,11 @@ export namespace Login {
 
 // 用户管理模块
 export namespace User {
+  export interface ReqRegister {
+    username: string
+    password: string
+    isAdmin: boolean
+  }
   export interface ResUsersByUsername {
     id: number
     username: string
@@ -64,26 +69,13 @@ export namespace User {
 
   export interface ReqUserParams extends ReqPage {
     username: string
-    gender: number
-    idCard: string
-    email: string
-    address: string
-    createTime: string[]
-    status: number
+    isAdmin?: boolean
   }
   export interface ResUserList {
-    id: string
+    id: number
     username: string
-    gender: number
-    user: { detail: { age: number } }
-    idCard: string
-    email: string
-    address: string
-    createTime: string
-    status: number
-    avatar: string
-    photo: any[]
-    children?: ResUserList[]
+    isAdmin: boolean
+    isFrozen: boolean
   }
   export interface ResStatus {
     userLabel: string
@@ -107,6 +99,10 @@ export namespace User {
 
 // 项目模块
 export namespace Project {
+  export interface ReqProjectList extends ReqPage {
+    name: string
+  }
+
   export interface ProjectReq {
     type: string
   }
@@ -135,7 +131,7 @@ export namespace Project {
     createTime: Date | string
     updateUserId: number
     createUsername?: String
-    members?: { id: number; name: string }[]
+    members?: { id: number; username: string }[]
   }
 }
 

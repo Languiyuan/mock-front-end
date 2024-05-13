@@ -1,6 +1,7 @@
-import { User } from '@/api/interface/index'
+import { User, Project } from '@/api/interface/index'
 import { PORT1 } from '@/api/config/servicePort'
 import http from '@/api'
+import { ResPage } from '../interface/index'
 
 /**
  * @name 用户管理模块
@@ -16,14 +17,29 @@ export const updateUserPasswordApi = (params: { password: string }) => {
 }
 
 // 获取用户列表
-// export const getUserList = (params: User.ReqUserParams) => {
-//   return http.post<ResPage<User.ResUserList>>(PORT1 + `/user/list`, params)
-// }
+export const getUserListApi = (params: User.ReqUserParams) => {
+  return http.post<ResPage<User.ResUserList>>(PORT1 + `/user/admin/getAllUsers`, params)
+}
 
-// // 新增用户
-// export const addUser = (params: { id: string }) => {
-//   return http.post(PORT1 + `/user/add`, params)
-// }
+// 冻结用户
+export const freezeApi = (params: { userId: number }) => {
+  return http.post<string>(PORT1 + `/user/admin/freeze`, params)
+}
+
+// 解冻用户
+export const unfreezeApi = (params: { userId: number }) => {
+  return http.post<string>(PORT1 + `/user/admin/unfreeze`, params)
+}
+
+// 管理员获取所有的项目
+export const getAllProjectApi = (params: Project.ReqProjectList) => {
+  return http.post<ResPage<Project.ResPorjectDetail>>(PORT1 + '/user/admin/getAllProject', params)
+}
+
+// 新增用户
+export const registerApi = (params: User.ReqRegister) => {
+  return http.post<string>(PORT1 + `/user/register`, params)
+}
 
 // // 批量添加用户
 // export const BatchAddUser = (params: FormData) => {

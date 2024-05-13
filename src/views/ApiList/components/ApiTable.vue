@@ -208,7 +208,7 @@ const handleDeleteOne = async (row: MockApi.ResApiDetail) => {
       }
       const { data } = await apiBatchDeleteApi(params)
       ElMessage.success(data)
-      getApiList()
+      await getApiList()
     })
     .catch(() => {})
 }
