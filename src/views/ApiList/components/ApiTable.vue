@@ -7,7 +7,7 @@
         <el-button type="primary" icon="Search" @click="getApiList">查询</el-button>
       </div>
       <div class="h-full flex items-center">
-        <el-button type="primary" icon="Upload">导入</el-button>
+        <el-button type="primary" icon="Upload" @click="handleUpload">导入</el-button>
         <el-button type="primary" icon="Download" @click="handleExport">导出</el-button>
         <el-button type="primary" icon="Delete" @click="batchDelete" :disabled="!selectedList.length">批量删除</el-button>
         <el-button type="primary" icon="Plus" @click="handleAddApi">新增接口</el-button>
@@ -113,6 +113,7 @@
 
   <AddAndEditDrawer ref="drawerRef" :project-id="projectId" :folder-id="curFolderId" @success="handleAddOrEditSuccess"></AddAndEditDrawer>
   <ApiMoveDialog ref="apiMoveRef" :folder-list="folderList" @success="getApiList"></ApiMoveDialog>
+  <UploadDialog ref="uploadDialogRef"></UploadDialog>
 </template>
 
 <script setup lang="ts">
@@ -129,6 +130,7 @@ import FolderBar from '@/views/ApiList/components/FolderBar.vue'
 import { folderListApi } from '../../../api/modules/project'
 import ApiMoveDialog from './ApiMoveDialog.vue'
 import { exportProjectAllApi } from '@/api/modules/mockApi'
+import UploadDialog from './UploadDialog.vue'
 
 const $props = defineProps<{
   rootUrl: string
@@ -254,8 +256,13 @@ const handleExport = async () => {
   }
 }
 
+// 导入
+const uploadDialogRef = ref()
+const handleUpload = () => {
+  uploadDialogRef.value.open()
+}
+
 const drawerRef = ref()
-// const type = ref()
 const handleAddApi = () => {
   drawerRef.value.open()
 }
