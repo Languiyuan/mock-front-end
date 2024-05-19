@@ -76,7 +76,7 @@
             <el-button link type="primary" size="small" @click="handleApiEdit(scope.row)"> 编辑 </el-button>
             <el-button link type="primary" size="small" @click="handleDeleteOne(scope.row)"> 删除 </el-button>
             <template v-if="!folderList.length">
-              <el-button link type="primary" size="small" @click="handleMoveApi(scope.row)"> 移动目录 </el-button>
+              <el-button link type="primary" size="small" @click="handleGoHistory(scope.row)"> 历史记录 </el-button>
             </template>
             <template v-else>
               <el-popover placement="bottom" width="120px" popper-style="min-width: 120px !important" trigger="hover">
@@ -113,7 +113,7 @@
 
   <AddAndEditDrawer ref="drawerRef" :project-id="projectId" :folder-id="curFolderId" @success="handleAddOrEditSuccess"></AddAndEditDrawer>
   <ApiMoveDialog ref="apiMoveRef" :folder-list="folderList" @success="getApiList"></ApiMoveDialog>
-  <UploadDialog ref="uploadDialogRef"></UploadDialog>
+  <UploadDialog ref="uploadDialogRef" @success="getApiList"></UploadDialog>
 </template>
 
 <script setup lang="ts">
