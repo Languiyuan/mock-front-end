@@ -35,13 +35,17 @@ import { useRoute } from 'vue-router'
 import { useUserStore } from '../../../stores/modules/user'
 import { ElMessage } from 'element-plus'
 import { ResultData } from '../../../api/interface/index'
+import { PORT1 } from '@/api/config/servicePort'
 
 const $emit = defineEmits<{
   success: []
 }>()
 
 const url = ref('')
-url.value = import.meta.env.VITE_USER_NODE_ENV === 'development' ? 'http://localhost:3000/api/uploadProjectFile' : '/api/uploadProjectFile'
+url.value =
+  import.meta.env.VITE_USER_NODE_ENV === 'development'
+    ? `http://localhost:3000${PORT1}/api/uploadProjectFile`
+    : `${PORT1}/api/uploadProjectFile`
 
 const headers = reactive({
   authorization: ''

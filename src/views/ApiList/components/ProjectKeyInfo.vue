@@ -56,7 +56,17 @@ const baseUrl = computed(() => {
 })
 const { copy } = useClipboard()
 const handleCopy = () => {
-  copy(baseUrl.value)
+  if (navigator.clipboard) {
+    copy(baseUrl.value)
+  } else {
+    const input = document.createElement('input')
+    input.setAttribute('value', baseUrl.value)
+    document.body.appendChild(input)
+    input.select()
+    document.execCommand('copy')
+    document.body.removeChild(input)
+  }
+
   ElMessage.success('已复制')
 }
 </script>

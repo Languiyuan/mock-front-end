@@ -281,10 +281,24 @@ const handleMoveApi = (row: MockApi.ResApiDetail) => {
 
 const { copy } = useClipboard()
 const handleCopy = (row: MockApi.ResApiDetail, type: string) => {
-  if (type === 'complete') {
-    copy(`${$props.rootUrl}${row.url}`)
+  if (navigator.clipboard) {
+    if (type === 'complete') {
+      copy(`${$props.rootUrl}${row.url}`)
+    } else {
+      copy(row.url)
+    }
   } else {
-    copy(row.url)
+    const input = document.createElement('input')
+
+    if (type === 'complete') {
+      input.setAttribute('value', `${$props.rootUrl}${row.url}`)
+    } else {
+      input.setAttribute('value', row.url)
+    }
+    document.body.appendChild(input)
+    input.select()
+    document.execCommand('copy')
+    document.body.removeChild(input)
   }
 
   ElMessage.success('已复制')

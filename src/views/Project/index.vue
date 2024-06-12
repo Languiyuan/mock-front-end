@@ -14,41 +14,46 @@
     </div>
 
     <div class="h-[calc(100%_-_40px)] pt-4 scrollbar-container" v-loading="loading">
-      <el-row :gutter="20">
-        <el-col :span="colSpan" v-for="(item, index) in projectList" :key="'project' + index">
-          <el-card class="min-w-48 mb-5 cursor-pointer hover:translate-y-[-0.5rem]" shadow="hover" @click="handleGoApiList(item)">
-            <template #header>
-              <div class="flex items-center">
-                <div class="flex-1 text-e text-[18px] font-bold">
-                  <span :title="item.name">{{ item.name }}</span>
+      <template v-if="projectList.length === 0">
+        <el-empty class="mt-40" description="暂无数据" />
+      </template>
+      <template v-else>
+        <el-row :gutter="20">
+          <el-col :span="colSpan" v-for="(item, index) in projectList" :key="'project' + index">
+            <el-card class="min-w-48 mb-5 cursor-pointer hover:translate-y-[-0.5rem]" shadow="hover" @click="handleGoApiList(item)">
+              <template #header>
+                <div class="flex items-center">
+                  <div class="flex-1 text-e text-[18px] font-bold">
+                    <span :title="item.name">{{ item.name }}</span>
+                  </div>
+                  <el-icon><ArrowRight /></el-icon>
                 </div>
-                <el-icon><ArrowRight /></el-icon>
-              </div>
-            </template>
+              </template>
 
-            <div class="min-h-28">
-              <p class="text-e pb-1" :title="item.baseUrl">{{ item.baseUrl }}</p>
-              <p class="text-e pb-1" :title="formatTime(item.createTime)">{{ formatTime(item.createTime) }}</p>
-              <p class="line-clamp-2 pb-1" :title="item.description">{{ item.description }}</p>
-            </div>
-
-            <template #footer>
-              <div class="flex items-center">
-                <div class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100" @click.stop="handleDelete(item)">
-                  <el-icon>
-                    <Delete />
-                  </el-icon>
-                </div>
-                <div class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100" @click.stop="handleEdit(item)">
-                  <el-icon>
-                    <Setting />
-                  </el-icon>
-                </div>
+              <div class="min-h-28">
+                <p class="text-e pb-1" :title="item.baseUrl">{{ item.baseUrl }}</p>
+                <p class="text-e pb-1" :title="formatTime(item.createTime)">{{ formatTime(item.createTime) }}</p>
+                <p class="line-clamp-2 pb-1" :title="item.description">{{ item.description }}</p>
               </div>
-            </template>
-          </el-card>
-        </el-col>
-      </el-row>
+
+              <template #footer>
+                <div class="flex items-center">
+                  <div class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100" @click.stop="handleDelete(item)">
+                    <el-icon>
+                      <Delete />
+                    </el-icon>
+                  </div>
+                  <div class="h-12 text-base flex-1 flex items-center justify-center hover:bg-gray-100" @click.stop="handleEdit(item)">
+                    <el-icon>
+                      <Setting />
+                    </el-icon>
+                  </div>
+                </div>
+              </template>
+            </el-card>
+          </el-col>
+        </el-row>
+      </template>
     </div>
 
     <AddProjectDialog ref="addProjectDialog" :type="type" :info="projectInfo" @success="getProjectList"></AddProjectDialog>
