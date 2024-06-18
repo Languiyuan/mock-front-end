@@ -128,8 +128,8 @@ interface FormData {
 }
 const formRef = ref<FormInstance>()
 const formData = ref<FormData>({
-  name: 'front-1',
-  url: '/test/front',
+  name: '',
+  url: '',
   method: 'GET',
   description: '',
   delay: 0,
@@ -137,7 +137,7 @@ const formData = ref<FormData>({
 })
 
 const validateBaseUrl = (rule: any, value: any, callback: any) => {
-  const regex = /^\/[a-zA-Z0-9/]+$/ // 以斜杠开头的正则表达式
+  const regex = /^\/[a-zA-Z0-9/_-]+$/ // 以斜杠开头的正则表达式
   if (!regex.test(value)) {
     callback(new Error('请输入正确格式的url'))
   } else {
