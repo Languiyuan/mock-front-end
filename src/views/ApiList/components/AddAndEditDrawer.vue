@@ -2,7 +2,7 @@
   <el-drawer
     v-model="drawer"
     direction="rtl"
-    size="50%"
+    :size="drawerSize"
     :before-close="handleClose"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
@@ -45,15 +45,21 @@
               show-word-limit
             />
           </el-form-item>
-          <el-form-item label="是否开启" class="w-full">
+          <el-form-item label="是否开启参数校验" class="w-full">
+            <el-switch v-model="formData.paramsCheckOn" :active-value="1" :inactive-value="0" />
+          </el-form-item>
+          <el-form-item label="是否开启接口" class="w-full">
             <el-switch v-model="formData.on" :active-value="1" :inactive-value="0" />
           </el-form-item>
+
           <el-form-item class="w-full">
             <el-button class="flex-1" @click="handleClose">取消</el-button>
             <el-button class="flex-1" type="primary" @click="submit"> 保存 </el-button>
           </el-form-item>
         </el-form>
       </div>
+
+      <div class="w-[450px] h-full pl-4 pr-4 bg-white flex items-center justify-center"></div>
 
       <div class="flex-1 h-full bg-black">
         <AceEditor ref="aceEditorRef"></AceEditor>
@@ -63,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick } from 'vue'
+import { ref, reactive, nextTick, watch } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { apiAddApi, apiEditApi } from '../../../api/modules/mockApi'
 import { MockApi } from '../../../api/interface/index'
@@ -84,6 +90,7 @@ enum drawerTypeEnum {
   edit = 'edit'
 }
 
+const drawerSize = ref<string>('50%')
 const drawerType = ref<drawerTypeEnum>(drawerTypeEnum.add)
 const drawer = ref(false)
 const aceEditorRef = ref()
@@ -103,12 +110,42 @@ const open = (apiData: MockApi.ResApiDetail | null = null) => {
       method: apiData.method,
       description: apiData.description,
       delay: apiData.delay,
-      on: apiData.on
+      on: apiData.on,
+      paramsCheckOn: apiData.paramsCheckOn,
+      params: apiData.params
     }
 
     apiId.value = apiData.id
   } else {
     drawerType.value = drawerTypeEnum.add
+
+    formData.value = {
+      name: '',
+      url: '',
+      method: 'GET',
+      description: '',
+      delay: 0,
+      on: 1,
+      paramsCheckOn: 0,
+      params: JSON.stringify([
+        {
+          name: 'name',
+          type: 'string',
+          required: true
+        },
+        {
+          name: 'list',
+          type: 'null, array',
+          required: true
+        }
+      ])
+    }
+
+    nextTick(() => {
+      aceEditorRef.value.setContent(
+        '{\r\n  "list|1-10": [\r\n    {\r\n      "id|+1": 1,\r\n      "name": "@cname",\r\n      "age|20-30": 25\r\n    }\r\n  ]\r\n}'
+      )
+    })
   }
 }
 
@@ -125,6 +162,8 @@ interface FormData {
   description: string
   delay: number
   on: number
+  paramsCheckOn: number
+  params: string
 }
 const formRef = ref<FormInstance>()
 const formData = ref<FormData>({
@@ -133,8 +172,18 @@ const formData = ref<FormData>({
   method: 'GET',
   description: '',
   delay: 0,
-  on: 1
+  on: 1,
+  paramsCheckOn: 0,
+  params: ''
 })
+
+// 设置展示传参设置
+watch(
+  () => formData.value.paramsCheckOn,
+  (val) => {
+    drawerSize.value = val ? '80%' : '50%'
+  }
+)
 
 const validateBaseUrl = (rule: any, value: any, callback: any) => {
   const regex = /^\/[a-zA-Z0-9/_-]+$/ // 以斜杠开头的正则表达式

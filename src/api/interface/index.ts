@@ -215,6 +215,8 @@ export namespace MockApi {
     delay: number
     description: string
     on: number
+    paramsCheckOn: number
+    params: string
     isDeleted: number
     createTime: Date | string
     updateTime: Date | string
