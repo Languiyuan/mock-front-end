@@ -46,7 +46,13 @@
             />
           </el-form-item>
           <el-form-item label="是否开启参数校验" class="w-full">
+            <template #label>
+              <span class="pr-2">是否开启参数校验</span>
+              <el-button icon="Edit" size="small" circle title="配置传参" @click="handleEditParams" />
+            </template>
+
             <el-switch v-model="formData.paramsCheckOn" :active-value="1" :inactive-value="0" />
+            <ParamsEdit ref="paramsEditRef"></ParamsEdit>
           </el-form-item>
           <el-form-item label="是否开启接口" class="w-full">
             <el-switch v-model="formData.on" :active-value="1" :inactive-value="0" />
@@ -59,7 +65,7 @@
         </el-form>
       </div>
 
-      <div class="w-[450px] h-full pl-4 pr-4 bg-white flex items-center justify-center"></div>
+      <!-- <div class="w-[450px] h-full pl-4 pr-4 bg-white flex items-center justify-center"></div> -->
 
       <div class="flex-1 h-full bg-black">
         <AceEditor ref="aceEditorRef"></AceEditor>
@@ -76,6 +82,7 @@ import { MockApi } from '../../../api/interface/index'
 import { ElMessage } from 'element-plus'
 import AceEditor from './AceEditor.vue'
 import { ElNotification } from 'element-plus'
+import ParamsEdit from './ParamsEdit.vue'
 
 const $props = defineProps<{
   projectId: number
@@ -90,7 +97,7 @@ enum drawerTypeEnum {
   edit = 'edit'
 }
 
-const drawerSize = ref<string>('50%')
+const drawerSize = ref<string>('30%')
 const drawerType = ref<drawerTypeEnum>(drawerTypeEnum.add)
 const drawer = ref(false)
 const aceEditorRef = ref()
@@ -181,9 +188,14 @@ const formData = ref<FormData>({
 watch(
   () => formData.value.paramsCheckOn,
   (val) => {
-    drawerSize.value = val ? '80%' : '50%'
+    drawerSize.value = val ? '50%' : '50%'
   }
 )
+
+const paramsEditRef = ref()
+const handleEditParams = () => {
+  paramsEditRef.value.open()
+}
 
 const validateBaseUrl = (rule: any, value: any, callback: any) => {
   const regex = /^\/[a-zA-Z0-9/_-]+$/ // 以斜杠开头的正则表达式
