@@ -2,7 +2,7 @@
   <el-drawer
     v-model="drawer"
     direction="rtl"
-    :size="drawerSize"
+    :size="60"
     :before-close="handleClose"
     :close-on-click-modal="false"
     :close-on-press-escape="false"
@@ -23,7 +23,7 @@
             <el-input v-model="formData.name" placeholder="接口名称" />
           </el-form-item>
           <el-form-item label="接口类型" class="w-[180px]" prop="method">
-            <el-select v-model="formData.method">
+            <el-select v-model="formData.method" @change="handleChangeMethod">
               <el-option label="POST" value="POST" />
               <el-option label="GET" value="GET" />
             </el-select>
@@ -48,11 +48,22 @@
           <el-form-item label="是否开启参数校验" class="w-full">
             <template #label>
               <span class="pr-2">是否开启参数校验</span>
-              <el-button icon="Edit" size="small" circle title="配置传参" @click="handleEditParams" />
+              <el-button
+                icon="Edit"
+                size="small"
+                :type="formData.params ? 'success' : ''"
+                circle
+                title="配置传参"
+                @click="handleEditParams"
+              />
+              <el-button icon="Upload" size="small" circle title="传参导入" @click="handleImportParams" />
             </template>
 
             <el-switch v-model="formData.paramsCheckOn" :active-value="1" :inactive-value="0" />
-            <ParamsEdit ref="paramsEditRef"></ParamsEdit>
+            <!-- 参数编辑 -->
+            <ParamsEdit ref="paramsEditRef" :method="formData.method" @confirm="handleSetParams"></ParamsEdit>
+            <!-- 参数导入 -->
+            <ParamsImportDialog ref="paramsImportDialogRef" @import="handleImportContent"></ParamsImportDialog>
           </el-form-item>
           <el-form-item label="是否开启接口" class="w-full">
             <el-switch v-model="formData.on" :active-value="1" :inactive-value="0" />
@@ -75,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick, watch } from 'vue'
+import { ref, reactive, nextTick } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { apiAddApi, apiEditApi } from '../../../api/modules/mockApi'
 import { MockApi } from '../../../api/interface/index'
@@ -83,6 +94,7 @@ import { ElMessage } from 'element-plus'
 import AceEditor from './AceEditor.vue'
 import { ElNotification } from 'element-plus'
 import ParamsEdit from './ParamsEdit.vue'
+import ParamsImportDialog from './ParamsImportDialog.vue'
 
 const $props = defineProps<{
   projectId: number
@@ -97,7 +109,6 @@ enum drawerTypeEnum {
   edit = 'edit'
 }
 
-const drawerSize = ref<string>('30%')
 const drawerType = ref<drawerTypeEnum>(drawerTypeEnum.add)
 const drawer = ref(false)
 const aceEditorRef = ref()
@@ -134,18 +145,7 @@ const open = (apiData: MockApi.ResApiDetail | null = null) => {
       delay: 0,
       on: 1,
       paramsCheckOn: 0,
-      params: JSON.stringify([
-        {
-          name: 'name',
-          type: 'string',
-          required: true
-        },
-        {
-          name: 'list',
-          type: 'null, array',
-          required: true
-        }
-      ])
+      params: ''
     }
 
     nextTick(() => {
@@ -184,16 +184,31 @@ const formData = ref<FormData>({
   params: ''
 })
 
-// 设置展示传参设置
-watch(
-  () => formData.value.paramsCheckOn,
-  (val) => {
-    drawerSize.value = val ? '50%' : '50%'
-  }
-)
+// 重置传参
+const handleChangeMethod = () => {
+  formData.value.params = ''
+}
 
 const paramsEditRef = ref()
 const handleEditParams = () => {
+  paramsEditRef.value.open(formData.value.params)
+}
+
+const handleSetParams = (params: string) => {
+  formData.value.params = params
+}
+
+const paramsImportDialogRef = ref()
+const handleImportParams = () => {
+  paramsImportDialogRef.value.open()
+}
+interface SingleParamsRule {
+  name: string
+  type: string[]
+  required: boolean
+}
+const handleImportContent = (content: SingleParamsRule[]) => {
+  paramsEditRef.value.handleImport(content)
   paramsEditRef.value.open()
 }
 
