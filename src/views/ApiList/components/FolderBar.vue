@@ -1,6 +1,6 @@
 <template>
   <div class="relative w-full h-[38px]">
-    <el-tabs v-model="curFolderId" type="card" class="demo-tabs pl-4 pr-4">
+    <el-tabs v-model="curFolderId" type="card" class="demo-tabs pl-4 pr-4 w-[98%]">
       <el-tab-pane :name="0">
         <template #label>
           <div class="all-api">ALL_API</div>

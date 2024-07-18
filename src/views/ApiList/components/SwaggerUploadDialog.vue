@@ -81,7 +81,7 @@ const projectId = computed(() => {
   return Number(route.params?.projectId || 0)
 })
 const params = ref()
-params.value = { projectId: projectId.value, type: 'normalJson' }
+params.value = { projectId: projectId.value, type: 'swaggerJson' }
 
 const dialogVisible = ref(false)
 const open = () => {

@@ -119,7 +119,12 @@ const open = (apiData: MockApi.ResApiDetail | null = null) => {
   if (apiData) {
     drawerType.value = drawerTypeEnum.edit
     nextTick(() => {
-      aceEditorRef.value.setContent(JSON.parse(apiData.mockRule))
+      
+      // aceEditorRef.value.setContent(JSON.parse(apiData.mockRule))
+      // swagger导入不需要进行json.parse
+      const parseMockRule = typeof JSON.parse(apiData.mockRule) === 'object' ? apiData.mockRule : JSON.parse(apiData.mockRule)
+      aceEditorRef.value.setContent(parseMockRule)
+      
     })
 
     formData.value = {
