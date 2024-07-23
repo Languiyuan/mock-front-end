@@ -115,7 +115,7 @@
   <AddAndEditDrawer ref="drawerRef" :project-id="projectId" :folder-id="curFolderId" @success="handleAddOrEditSuccess"></AddAndEditDrawer>
   <ApiMoveDialog ref="apiMoveRef" :folder-list="folderList" @success="getApiList"></ApiMoveDialog>
   <UploadDialog ref="uploadDialogRef" @success="getApiList"></UploadDialog>
-  <SwaggerUploadDialog ref="swaggerUploadDialogRef" @success="getApiList"></SwaggerUploadDialog>
+  <SwaggerUploadDialog ref="swaggerUploadDialogRef" @success="handleSwaggerImportSuccess"></SwaggerUploadDialog>
 </template>
 
 <script setup lang="ts">
@@ -269,6 +269,11 @@ const handleUpload = () => {
 const swaggerUploadDialogRef = ref()
 const handleSwaggerUpload = () => {
   swaggerUploadDialogRef.value.open()
+}
+// import swagger success callback
+const handleSwaggerImportSuccess = async () => {
+   await getFolderList()
+   await getApiList()
 }
 
 const drawerRef = ref()
