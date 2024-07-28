@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body :before-close="close" title="参数配置（仅支持application/json）" width="820">
+  <el-dialog v-model="dialogVisible" append-to-body :before-close="close" title="参数配置（仅支持application/json）" width="860">
     <template #header>
       参数配置
       <el-tooltip class="box-item" effect="dark" content="仅支持application/json" placement="top">
@@ -9,19 +9,19 @@
 
     <div v-if="$props.method === 'POST'">
       <p class="pb-1 font-bold">Body类型</p>
-      <el-select v-model="paramsType" placeholder="Select">
+      <el-select v-model="bodyParamsType" placeholder="Select">
         <el-option label="object" value="object" />
         <el-option label="array" value="array" />
       </el-select>
     </div>
 
-    <div class="mt-4" v-if="paramsType === 'object'">
-      <p class="pb-1 font-bold">参数配置</p>
+    <div class="mt-4" v-if="bodyParamsType === 'object' && $props.method === 'POST'">
+      <p class="pb-1 font-bold">Body参数配置</p>
 
       <div class="max-h-60 scrollbar-container">
         <el-form
-          v-for="(item, index) in paramsFormRule"
-          :ref="(el: refItem) => setFormRef(el, index)"
+          v-for="(item, index) in bodyParamsFormRule"
+          :ref="(el: refItem) => setFormRef(el, index, 'body')"
           :rules="formRules"
           :key="index + 'formParams'"
           :inline="true"
@@ -40,11 +40,44 @@
             <el-switch v-model="item.required" />
           </el-form-item>
           <el-form-item>
-            <el-button type="danger" icon="Delete" size="small" circle @click="handleDeleteFromRow(index)" />
+            <el-button type="danger" icon="Delete" size="small" circle @click="handleDeleteBodyFromRow(index)" />
           </el-form-item>
         </el-form>
 
-        <el-button class="block w-full mt-2" icon="Plus" @click="handleAddFormRule">Add</el-button>
+        <el-button class="block w-full mt-2" icon="Plus" @click="handleAddBodyFormRule">Add</el-button>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <p class="pb-1 font-bold">Query参数配置</p>
+
+      <div class="max-h-60 scrollbar-container">
+        <el-form
+          v-for="(item, index) in queryParamsFormRule"
+          :ref="(el: refItem) => setFormRef(el, index, 'query')"
+          :rules="formRules"
+          :key="index + 'formParams'"
+          :inline="true"
+          :model="item"
+          class="demo-form-inline"
+        >
+          <el-form-item label="参数名" style="margin-right: 24px; width: 230px" prop="name">
+            <el-input v-model="item.name" placeholder="填写参数名" clearable />
+          </el-form-item>
+          <el-form-item label="参数类型" class="w-80" style="margin-right: 24px" prop="type">
+            <el-select v-model="item.type" disabled multiple collapse-tags collapse-tags-tooltip :max-collapse-tags="2" placeholder="选择参数类型">
+              <el-option v-for="(o, i) in typeOptions" :key="i + 'type'" :label="o" :value="o" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="是否必传" style="margin-right: 24px">
+            <el-switch v-model="item.required" />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="danger" icon="Delete" size="small" circle @click="handleDeleteQueryFromRow(index)" />
+          </el-form-item>
+        </el-form>
+
+        <el-button class="block w-full mt-2" icon="Plus" @click="handleAddQueryFormRule">Add</el-button>
       </div>
     </div>
 
@@ -72,27 +105,36 @@ const $emit = defineEmits<{
 }>()
 const dialogVisible = ref(false)
 
-const paramsType = ref('object')
-
-// enum ParamsTypeEnum {
-//   array = 'array',
-//   object = 'object',
-//   undefined = 'undefined',
-//   null = 'null',
-//   number = 'number',
-//   string = 'string'
-// }
+const bodyParamsType = ref('object')
 
 interface SingleParamsRule {
   name: string
   type: string[]
   required: boolean
+  deliverWay: string
+}
+
+interface Output {
+  bodyParamsType: string
+  bodyParams: SingleParamsRule[]
+  queryParams: SingleParamsRule[]
 }
 
 const typeOptions = reactive(['string', 'number', 'null', 'undefined', 'array', 'object'])
-const paramsFormRule = ref<SingleParamsRule[]>([])
-const handleAddFormRule = () => {
-  paramsFormRule.value.push({ name: '', type: [], required: true })
+const bodyParamsFormRule = ref<SingleParamsRule[]>([])
+const handleAddBodyFormRule = () => {
+  bodyParamsFormRule.value.push({ name: '', type: [], required: true, deliverWay: 'body' })
+}
+const handleDeleteBodyFromRow = (index: number) => {
+  bodyParamsFormRule.value.splice(index, 1)
+}
+
+const queryParamsFormRule = ref<SingleParamsRule[]>([])
+const handleAddQueryFormRule = () => {
+  queryParamsFormRule.value.push({ name: '', type: ['string'], required: true, deliverWay: 'body' })
+}
+const handleDeleteQueryFromRow = (index: number) => {
+  queryParamsFormRule.value.splice(index, 1)
 }
 
 interface RuleForm {
@@ -103,9 +145,9 @@ interface RuleForm {
 const validateName = (rule: any, value: any, callback: any) => {
   if (value === '') {
     callback(new Error('请填写参数名'))
-  } else if (!/^[\u4e00-\u9fa5a-zA-Z0-9]{2,15}$/.test(value)) {
-    callback(new Error('不允许包含特殊字符'))
-  } else if (paramsFormRule.value.filter((item: SingleParamsRule) => item.name === value).length > 1) {
+  } else if (!/^[a-zA-Z0-9_-]{1,50}$/.test(value)) {
+    callback(new Error('小于50且不允许包含特殊字符'))
+  } else if (bodyParamsFormRule.value.filter((item: SingleParamsRule) => item.name === value).length > 1) {
     callback(new Error('参数名不允许重复'))
   } else {
     callback()
@@ -134,61 +176,54 @@ const oneValidate = async (formEl: FormInstance | undefined): Promise<boolean> =
 
 // 存动态ref
 const formRefMap: Record<string, refItem> = {}
-const setFormRef = (el: refItem, index: number) => {
+const setFormRef = (el: refItem, index: number, type: string) => {
   if (el) {
-    formRefMap[`formRef${index}`] = el
+    formRefMap[`formRef${index}${type}`] = el
   }
 }
 
 const confirm = async () => {
-  if (paramsType.value === 'array') {
-    $emit('confirm', JSON.stringify('array'))
-    close()
-    return
-  }
-
   let result: Promise<boolean>[] = []
   Object.values(formRefMap).forEach((item) => {
     result.push(oneValidate(item as FormInstance))
   })
-  console.log('result', result)
-  Promise.allSettled(result).then((res) => {
-    console.log('res', res)
-    if (res.findIndex((item) => (item.status === 'fulfilled' && item.value === false) || item.status === 'rejected') > -1) return
 
-    $emit('confirm', paramsFormRule.value.length === 0 ? '' : JSON.stringify(paramsFormRule.value))
+  Promise.allSettled(result).then((res) => {
+    if (res.findIndex((item) => (item.status === 'fulfilled' && item.value === false) || item.status === 'rejected') > -1) return
+    const output: Output = {
+      bodyParamsType: bodyParamsType.value,
+      bodyParams:  bodyParamsType.value === 'array' || $props.method === 'GET' ? [] : bodyParamsFormRule.value,
+      queryParams: queryParamsFormRule.value
+    }
+
+    $emit('confirm', JSON.stringify(output))
     close()
   })
 
   // submit
 }
 
-const handleDeleteFromRow = (index: number) => {
-  paramsFormRule.value.splice(index, 1)
-}
-
 const handleImport = (rules: SingleParamsRule[]) => {
-  paramsType.value = 'object'
-  paramsFormRule.value = rules
+  bodyParamsType.value = 'object'
+  bodyParamsFormRule.value = rules
 }
 
 const open = (paramsJson: string) => {
   dialogVisible.value = true
   if (!paramsJson) return
 
-  const params: SingleParamsRule[] | string = JSON.parse(paramsJson)
-  if (params === 'array') {
-    paramsType.value = 'array'
-  } else if (params) {
-    paramsType.value = 'object'
-    paramsFormRule.value = params as SingleParamsRule[]
-  }
+  const params: Output = JSON.parse(paramsJson)
+
+  bodyParamsType.value = params.bodyParamsType
+  bodyParamsFormRule.value = params.bodyParams
+  queryParamsFormRule.value = params.queryParams
 }
 
 const close = () => {
   dialogVisible.value = false
-  paramsType.value = 'object'
-  paramsFormRule.value = []
+  bodyParamsType.value = 'object'
+  bodyParamsFormRule.value = []
+  queryParamsFormRule.value = []
 }
 
 defineExpose({
