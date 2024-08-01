@@ -111,7 +111,6 @@ interface SingleParamsRule {
   name: string
   type: string[]
   required: boolean
-  deliverWay: string
 }
 
 interface Output {
@@ -123,7 +122,7 @@ interface Output {
 const typeOptions = reactive(['string', 'number', 'null', 'undefined', 'array', 'object'])
 const bodyParamsFormRule = ref<SingleParamsRule[]>([])
 const handleAddBodyFormRule = () => {
-  bodyParamsFormRule.value.push({ name: '', type: [], required: true, deliverWay: 'body' })
+  bodyParamsFormRule.value.push({ name: '', type: [], required: true })
 }
 const handleDeleteBodyFromRow = (index: number) => {
   bodyParamsFormRule.value.splice(index, 1)
@@ -131,7 +130,7 @@ const handleDeleteBodyFromRow = (index: number) => {
 
 const queryParamsFormRule = ref<SingleParamsRule[]>([])
 const handleAddQueryFormRule = () => {
-  queryParamsFormRule.value.push({ name: '', type: ['string'], required: true, deliverWay: 'body' })
+  queryParamsFormRule.value.push({ name: '', type: ['string'], required: true })
 }
 const handleDeleteQueryFromRow = (index: number) => {
   queryParamsFormRule.value.splice(index, 1)
