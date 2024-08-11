@@ -10,6 +10,8 @@
         <el-button type="primary" icon="Upload" @click="handleUpload">导入</el-button>
         <el-button type="primary" icon="Upload" @click="handleSwaggerUpload">导入swagger</el-button>
         <el-button type="primary" icon="Download" @click="handleExport">导出</el-button>
+        <el-button type="primary" icon="Download" @click="handleExportMock">导出Mockjs</el-button>
+        <el-button type="primary" icon="Download" @click="handleExportApi">导出api接口</el-button>
         <el-button type="primary" icon="Delete" @click="batchDelete" :disabled="!selectedList.length">批量删除</el-button>
         <el-button type="primary" icon="Plus" @click="handleAddApi">新增接口</el-button>
       </div>
@@ -259,6 +261,54 @@ const handleExport = async () => {
   }
 }
 
+// 导出mockjs
+const handleExportMock = async () => {
+  let basicContent = `const Mock = require('mockjs');`
+  tableData.value.forEach((item) => {
+    basicContent += `
+    // ${item.description}
+    Mock.mock('${item.url}', '${item.method.toLowerCase()}', ${JSON.parse(item.mockRule)});
+    `
+  })
+  // 创建 Blob 对象
+  const blob = new Blob([basicContent], { type: 'application/javascript' })
+
+  // 创建 URL 并下载
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'generated.js'
+  a.click()
+
+  // 清理
+  URL.revokeObjectURL(url)
+}
+
+// 导出api接口
+const handleExportApi = () => {
+  let basicContent = ``
+  tableData.value.forEach((item) => {
+    basicContent += `
+    // ${item.description}
+    export const ${item.url.split('/').pop()} = (params) => {
+      return http.${item.method.toLowerCase()}(PORT1 + '${item.url}', params)
+    }
+    `
+  })
+  // 创建 Blob 对象
+  const blob = new Blob([basicContent], { type: 'application/javascript' })
+
+  // 创建 URL 并下载
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'generated.js'
+  a.click()
+
+  // 清理
+  URL.revokeObjectURL(url)
+}
+
 // 导入
 const uploadDialogRef = ref()
 const handleUpload = () => {
@@ -272,8 +322,8 @@ const handleSwaggerUpload = () => {
 }
 // import swagger success callback
 const handleSwaggerImportSuccess = async () => {
-   await getFolderList()
-   await getApiList()
+  await getFolderList()
+  await getApiList()
 }
 
 const drawerRef = ref()
