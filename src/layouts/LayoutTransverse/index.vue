@@ -62,22 +62,22 @@ const defaultMenuList = [
       isKeepAlive: true
     },
     children: []
-  },
-  {
-    path: '/personalCenter/index',
-    name: 'personalCenter',
-    component: '/personalCenter/index',
-    meta: {
-      icon: 'UserFilled',
-      title: '个人中心',
-      isLink: '',
-      isHide: false,
-      isFull: false,
-      isAffix: true,
-      isKeepAlive: true
-    },
-    children: []
   }
+  // {
+  //   path: '/personalCenter/index',
+  //   name: 'personalCenter',
+  //   component: '/personalCenter/index',
+  //   meta: {
+  //     icon: 'UserFilled',
+  //     title: '个人中心',
+  //     isLink: '',
+  //     isHide: false,
+  //     isFull: false,
+  //     isAffix: true,
+  //     isKeepAlive: true
+  //   },
+  //   children: []
+  // }
 ]
 
 const menuList = computed(() => {
