@@ -7,11 +7,29 @@
         <el-button type="primary" icon="Search" @click="getApiList">查询</el-button>
       </div>
       <div class="h-full flex items-center">
-        <el-button type="primary" icon="Upload" @click="handleUpload">导入</el-button>
-        <el-button type="primary" icon="Upload" @click="handleSwaggerUpload">导入swagger</el-button>
-        <el-button type="primary" icon="Download" @click="handleExport">导出</el-button>
-        <el-button type="primary" icon="Download" @click="handleExportMock">导出Mockjs</el-button>
-        <el-button type="primary" icon="Download" @click="handleExportApi">导出api接口</el-button>
+        <el-popover placement="bottom" trigger="hover">
+          <template #reference>
+            <el-button type="primary" icon="Upload">导入</el-button>
+          </template>
+
+          <div class="flex flex-col">
+            <el-button type="primary" icon="Upload" @click="handleUpload">导入项目</el-button>
+            <el-button class="!ml-0 mt-2" type="primary" icon="Upload" @click="handleSwaggerUpload">导入swagger</el-button>
+          </div>
+        </el-popover>
+
+        <el-popover placement="bottom" trigger="hover">
+          <template #reference>
+            <el-button type="primary" icon="Download">导出</el-button>
+          </template>
+
+          <div class="flex flex-col">
+            <el-button type="primary" icon="Download" @click="handleExport">导出项目</el-button>
+            <el-button class="!ml-0 mt-2" type="primary" icon="Download" @click="handleExportMock">导出Mockjs</el-button>
+            <el-button class="!ml-0 mt-2" type="primary" icon="Download" @click="handleExportApi">导出api接口</el-button>
+          </div>
+        </el-popover>
+
         <el-button type="primary" icon="Delete" @click="batchDelete" :disabled="!selectedList.length">批量删除</el-button>
         <el-button type="primary" icon="Plus" @click="handleAddApi">新增接口</el-button>
       </div>
@@ -59,7 +77,9 @@
             {{ scope.row.url }}
             <el-popover placement="top" width="220px" trigger="hover">
               <template #reference>
-                <el-icon class="text-xl ml-4"><DocumentCopy /></el-icon>
+                <el-icon class="text-xl ml-4">
+                  <DocumentCopy />
+                </el-icon>
               </template>
               <div class="w-full flex items-center justify-around">
                 <el-button @click="handleCopy(scope.row, 'complete')">完整地址</el-button>
@@ -114,10 +134,11 @@
     </div>
   </div>
 
-  <AddAndEditDrawer ref="drawerRef" :project-id="projectId" :folder-id="curFolderId" @success="handleAddOrEditSuccess"></AddAndEditDrawer>
+  <AddAndEditDrawer ref="drawerRef" :project-id="projectId" :folder-id="curFolderId" @success="handleAddOrEditSuccess"> </AddAndEditDrawer>
   <ApiMoveDialog ref="apiMoveRef" :folder-list="folderList" @success="getApiList"></ApiMoveDialog>
   <UploadDialog ref="uploadDialogRef" @success="getApiList"></UploadDialog>
   <SwaggerUploadDialog ref="swaggerUploadDialogRef" @success="handleSwaggerImportSuccess"></SwaggerUploadDialog>
+  <ApiCustomExportDialog ref="ApiCustomExportDialogRef"></ApiCustomExportDialog>
 </template>
 
 <script setup lang="ts">
@@ -136,6 +157,7 @@ import ApiMoveDialog from './ApiMoveDialog.vue'
 import { exportProjectAllApi } from '@/api/modules/mockApi'
 import UploadDialog from './UploadDialog.vue'
 import SwaggerUploadDialog from './SwaggerUploadDialog.vue'
+import ApiCustomExportDialog from '@/views/ApiList/components/ApiCustomExportDialog.vue'
 
 const $props = defineProps<{
   rootUrl: string
@@ -225,6 +247,7 @@ const selectedList = ref<MockApi.ResApiDetail[]>([])
 const handleSelectionChange = (list: MockApi.ResApiDetail[]) => {
   selectedList.value = list
 }
+// 批量删除选中的API
 const batchDelete = () => {
   ElMessageBox.confirm('请确认是否删除选中的api', '提示', {
     confirmButtonText: '确认',
@@ -263,50 +286,73 @@ const handleExport = async () => {
 
 // 导出mockjs
 const handleExportMock = async () => {
-  let basicContent = `const Mock = require('mockjs');`
-  tableData.value.forEach((item) => {
-    basicContent += `
-    // ${item.description}
-    Mock.mock('${item.url}', '${item.method.toLowerCase()}', ${JSON.parse(item.mockRule)});
-    `
-  })
-  // 创建 Blob 对象
-  const blob = new Blob([basicContent], { type: 'application/javascript' })
+  ElMessageBox.confirm(
+    selectedList.value.length ? `确认导出选中的${selectedList.value.length}个接口为Mockjs格式?` : '确认导出所有接口为Mockjs格式?',
+    'Tip',
+    {
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
+      type: 'info'
+    }
+  )
+    .then(async () => {
+      let list = []
+      if (selectedList.value.length) {
+        list = selectedList.value
+      } else {
+        const { data } = await apiListApi({ ...queryParams, name: '', url: '', pageNo: 1, pageSize: 10000 })
+        list = data.list
+      }
 
-  // 创建 URL 并下载
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'generated.js'
-  a.click()
+      let basicContent = `const Mock = require('mockjs');`
+      list.forEach((item) => {
+        basicContent += `
+          // ${item.description}
+          Mock.mock('${item.url}', '${item.method.toLowerCase()}', ${JSON.stringify(JSON.parse(item.mockRule))});
+          `
+      })
+      // 创建 Blob 对象
+      const blob = new Blob([basicContent], { type: 'application/javascript' })
 
-  // 清理
-  URL.revokeObjectURL(url)
+      // 创建 URL 并下载
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = 'generated.js'
+      a.click()
+
+      // 清理
+      URL.revokeObjectURL(url)
+    })
+    .catch(() => {})
 }
 
+const ApiCustomExportDialogRef = ref()
 // 导出api接口
 const handleExportApi = () => {
-  let basicContent = ``
-  tableData.value.forEach((item) => {
-    basicContent += `
-    // ${item.description}
-    export const ${item.url.split('/').pop()} = (params) => {
-      return http.${item.method.toLowerCase()}(PORT1 + '${item.url}', params)
-    }
-    `
-  })
-  // 创建 Blob 对象
-  const blob = new Blob([basicContent], { type: 'application/javascript' })
+  ApiCustomExportDialogRef.value.open(selectedList.value)
+  return
+  // let basicContent = ``
+  // tableData.value.forEach((item) => {
+  //   basicContent += `
+  //   // ${item.description}
+  //   export const ${item.url.split('/').pop()} = (params) => {
+  //     return http.${item.method.toLowerCase()}(PORT1 + '${item.url}', params)
+  //   }
+  //   `
+  // })
+  // // 创建 Blob 对象
+  // const blob = new Blob([basicContent], { type: 'application/javascript' })
 
-  // 创建 URL 并下载
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'generated.js'
-  a.click()
+  // // 创建 URL 并下载
+  // const url = URL.createObjectURL(blob)
+  // const a = document.createElement('a')
+  // a.href = url
+  // a.download = 'generated.js'
+  // a.click()
 
-  // 清理
-  URL.revokeObjectURL(url)
+  // // 清理
+  // URL.revokeObjectURL(url)
 }
 
 // 导入

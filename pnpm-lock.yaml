@@ -29,6 +29,9 @@ dependencies:
   mitt:
     specifier: ^3.0.1
     version: 3.0.1
+  monaco-editor:
+    specifier: ^0.50.0
+    version: 0.50.0
   pinia:
     specifier: ^2.1.7
     version: 2.1.7(typescript@5.4.3)(vue@3.4.21)
@@ -107,7 +110,7 @@ devDependencies:
     specifier: ~5.4.0
     version: 5.4.3
   vite:
-    specifier: ^5.1.6
+    specifier: 5.2.6
     version: 5.2.6(@types/node@20.11.30)(sass@1.72.0)
   vite-plugin-vue-devtools:
     specifier: ^7.0.25
@@ -2715,6 +2718,10 @@ packages:
 
   /mitt@3.0.1:
     resolution: {integrity: sha512-vKivATfr97l2/QBCYAkXYDbrIWPM2IIKEl7YPhjCvKlG3kE2gm+uBo6nEXK3M5/Ffh/FLpKExzOQ3JJoJGFKBw==}
+
+  /monaco-editor@0.50.0:
+    resolution: {integrity: sha512-8CclLCmrRRh+sul7C08BmPBP3P8wVWfBHomsTcndxg5NRCEPfu/mc2AGU8k37ajjDVXcXFc12ORAMUkmk+lkFA==}
+    dev: false
 
   /mrmime@2.0.0:
     resolution: {integrity: sha512-eu38+hdgojoyq63s+yTpN4XMBdt5l8HhMhc4VKLO9KM5caLIBvUm4thi7fFaxyTmCKeNnXZ5pAlBwCUnhA09uw==}

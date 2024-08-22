@@ -12,6 +12,9 @@ import * as Icons from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 
+// monaco editor
+import 'monaco-editor/min/vs/editor/editor.main.css'
+
 const app = createApp(App)
 // register the element Icons component
 Object.keys(Icons).forEach((key) => {
