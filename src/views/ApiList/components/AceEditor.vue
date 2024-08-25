@@ -33,6 +33,7 @@ import { VAceEditor } from 'vue3-ace-editor'
 import './ace.config'
 import type { Ace } from 'ace-builds'
 import beautify from 'js-beautify'
+import { ElNotification } from 'element-plus'
 
 const content = ref(
   '{\r\n  "list|1-10": [\r\n    {\r\n      "id|+1": 1,\r\n      "name": "@cname",\r\n      "age|20-30": 25\r\n    }\r\n  ]\r\n}'
@@ -90,10 +91,29 @@ const handleFormat = () => {
 
 const setContent = (data: string) => {
   content.value = data
+  handleFormat()
+}
+
+const getContent = () => {
+  const options2 = { indent_size: 0, space_in_empty_paren: false, end_with_newline: false }
+  const simpleContent = beautify(content.value, options2)
+  try {
+    JSON.stringify(JSON.parse(simpleContent))
+  } catch (error: any) {
+    ElNotification({
+      title: 'Error',
+      message: error,
+      type: 'error'
+    })
+    return 'illegal'
+  }
+
+  return JSON.stringify(JSON.parse(simpleContent))
 }
 
 defineExpose({
   content,
+  getContent,
   setContent
 })
 </script>

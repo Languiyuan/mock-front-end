@@ -92,7 +92,7 @@ import { apiAddApi, apiEditApi } from '../../../api/modules/mockApi'
 import { MockApi } from '../../../api/interface/index'
 import { ElMessage } from 'element-plus'
 import AceEditor from './AceEditor.vue'
-import { ElNotification } from 'element-plus'
+// import { ElNotification } from 'element-plus'
 import ParamsEdit from './ParamsEdit.vue'
 import ParamsImportDialog from './ParamsImportDialog.vue'
 
@@ -119,12 +119,10 @@ const open = (apiData: MockApi.ResApiDetail | null = null) => {
   if (apiData) {
     drawerType.value = drawerTypeEnum.edit
     nextTick(() => {
-      
       // aceEditorRef.value.setContent(JSON.parse(apiData.mockRule))
       // swagger导入不需要进行json.parse
       const parseMockRule = typeof JSON.parse(apiData.mockRule) === 'object' ? apiData.mockRule : JSON.parse(apiData.mockRule)
       aceEditorRef.value.setContent(parseMockRule)
-      
     })
 
     formData.value = {
@@ -155,6 +153,7 @@ const open = (apiData: MockApi.ResApiDetail | null = null) => {
 
     nextTick(() => {
       aceEditorRef.value.setContent(
+        // '{"list|1-10":[{"id|+1":1,"name":"@cname","age|20-30":25233}]}'
         '{\r\n  "list|1-10": [\r\n    {\r\n      "id|+1": 1,\r\n      "name": "@cname",\r\n      "age|20-30": 25\r\n    }\r\n  ]\r\n}'
       )
     })
@@ -241,25 +240,28 @@ const rules = reactive({
 const submit = () => {
   formRef.value?.validate(async (valid) => {
     if (!valid) return
-    const aceContent = aceEditorRef.value.content
-    try {
-      JSON.parse(aceContent)
-      JSON.stringify(aceContent)
-    } catch (error: any) {
-      ElNotification({
-        title: 'Error',
-        message: error,
-        type: 'error'
-      })
-      return
-    }
+    const aceContent = aceEditorRef.value.getContent()
+    if (aceContent === 'illegal') return
+    console.log('aceContent', typeof aceContent, aceContent, JSON.stringify(JSON.parse(aceContent)))
+    // try {
+    //   JSON.parse(aceContent)
+    //   JSON.stringify(aceContent)
+    // } catch (error: any) {
+    //   ElNotification({
+    //     title: 'Error',
+    //     message: error,
+    //     type: 'error'
+    //   })
+    //   return
+    // }
     console.log('---------------')
 
     if (drawerType.value === 'add') {
       const params: MockApi.ReqAddApi = {
         projectId: $props.projectId,
         folderId: $props.folderId || null,
-        mockRule: JSON.stringify(aceContent),
+        // mockRule: JSON.stringify(aceContent),
+        mockRule: aceContent,
         ...formData.value
       }
 
@@ -270,7 +272,8 @@ const submit = () => {
         id: apiId.value,
         projectId: $props.projectId,
         folderId: $props.folderId || null,
-        mockRule: JSON.stringify(aceContent),
+        mockRule: aceContent,
+        // mockRule: JSON.stringify(aceContent),
         ...formData.value
       }
 

@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 // import { ElMessage } from 'element-plus'
 import { MockApi } from '../../../api/interface/index'
 import Editor from '@/components/Editor.vue'
@@ -35,7 +35,24 @@ const close = () => {
 
 // todo 应该在项目中配置
 const modelContent = ref()
+//   `
+// // \${description}
+// export const \${funcName} = (params) => {
+//     return http.\${method}(PORT1 + '\${url}', params)
+// }
+// `
 const editorRef = ref()
+nextTick(() => {
+  editorRef.value.setEditorContent(
+    `
+      // \${description}
+      export const \${funcName} = (params) => {
+          return http.\${method}(PORT1 + '\${url}', params)
+      }
+    `
+  )
+})
+
 const submit = async () => {
   let content = editorRef.value.getEditorContent()
   // 去掉首末的反引号
@@ -48,7 +65,7 @@ const submit = async () => {
   // export const ${funcName} = (params) => {
   //   return http.${method}(PORT1 + '${url}', params)
   // }
-  //`
+  // `
 
   let basicContent = ''
   selectList.value.forEach((item) => {
