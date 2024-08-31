@@ -1,11 +1,22 @@
 <template>
-  <el-dialog v-model="dialogFormVisible" title="导出api接口" width="800" :before-close="close">
-    <div class="w-full h-72">
-      <Editor ref="editorRef" :value="modelContent" language="javascript"></Editor>
+  <el-dialog v-model="dialogFormVisible" title="导出api接口" width="840" :before-close="close">
+    <div class="flex items-center flex-wrap justify-start">
+      <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('// lmDescription /n')"
+        >注释：lmDescription</el-button
+      >
+      <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('lmFuncName')">函数名：lmFuncName</el-button>
+      <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('lmMethod')">请求方式：lmMethod</el-button>
+      <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('LMMethod')">请求方式(大写)：LMMethod</el-button>
+      <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('lmUrl')">url：lmUrl</el-button>
+      <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('lmBaseUrl')">baseUrl：lmBaseUrl</el-button>
+    </div>
+    <div class="w-full h-72 mt-4">
+      <Editor ref="editorRef" :value="apiExportTemplate" language="javascript"></Editor>
     </div>
     <template #footer>
       <div class="dialog-footer">
         <el-button @click="close">取消</el-button>
+        <el-button type="primary" @click="handleApplyTemplate"> 设为模板 </el-button>
         <el-button type="primary" @click="submit"> 确认 </el-button>
       </div>
     </template>
@@ -13,59 +24,84 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
-// import { ElMessage } from 'element-plus'
-import { MockApi } from '../../../api/interface/index'
+import { ref, computed, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
+import { MockApi, Project } from '../../../api/interface/index'
 import Editor from '@/components/Editor.vue'
-// const $emit = defineEmits<{
-//   success: []
-// }>()
-const dialogFormVisible = ref(false)
+import { editProjectApi, getProjectDetailApi } from '@/api/modules/project'
+import { useRoute } from 'vue-router'
 
+const $props = defineProps({
+  baseUrl: {
+    type: String,
+    default: ''
+  }
+})
+
+const route = useRoute()
+const projectId = computed(() => {
+  return Number(route.params?.projectId || 0)
+})
+
+const editorRef = ref()
 const selectList = ref<MockApi.ResApiDetail[]>([])
-const open = (list: MockApi.ResApiDetail[]) => {
+const dialogFormVisible = ref(false)
+const open = async (list: MockApi.ResApiDetail[]) => {
   selectList.value = list
-
   dialogFormVisible.value = true
+  await getProjectDetail()
+  console.log('apiExportTemplate', apiExportTemplate)
+  nextTick(() => {
+    // editorRef.value.setEditorContent(
+    //   '// lmDescription \n export const lmFuncName = (params) => {return http.lmMethod("lmBaseUrl" + "lmUrl", params)}'
+    // )
+    editorRef.value.setEditorContent(apiExportTemplate.value)
+  })
 }
 
 const close = () => {
   dialogFormVisible.value = false
 }
 
-// todo 应该在项目中配置
-const modelContent = ref()
-//   `
-// // \${description}
-// export const \${funcName} = (params) => {
-//     return http.\${method}(PORT1 + '\${url}', params)
-// }
-// `
-const editorRef = ref()
-nextTick(() => {
-  editorRef.value.setEditorContent(
-    `
-      // \${description}
-      export const \${funcName} = (params) => {
-          return http.\${method}(PORT1 + '\${url}', params)
-      }
-    `
-  )
-})
+// 获取项目详情
+const loading = ref(false)
+const apiExportTemplate = ref('')
+const projectDetail = ref<Project.ResPorjectDetail>()
+const getProjectDetail = async () => {
+  try {
+    loading.value = true
+    const { data } = await getProjectDetailApi({ projectId: projectId.value })
+    projectDetail.value = data
+    loading.value = false
+    apiExportTemplate.value = data.apiExportTemplate
+  } catch (error) {
+    loading.value = false
+  }
+}
+
+// 设置为导出 api 模板
+const handleApplyTemplate = async () => {
+  if (!projectDetail.value) return
+  let content = editorRef.value.getEditorContent()
+  // 去掉首末的空格
+  content = content.trim()
+  const { id: projectId, name, baseUrl, description } = projectDetail.value
+
+  const { data } = await editProjectApi({ projectId, name, baseUrl, description, apiExportTemplate: content })
+  ElMessage.success(data)
+}
+
+const handleInsertText = (text: string) => {
+  editorRef.value.insertText(text)
+}
 
 const submit = async () => {
   let content = editorRef.value.getEditorContent()
-  // 去掉首末的反引号
-  content = content.trim().replace(/^`|`$/g, '')
-  console.log('content', content)
-  console.log(JSON.stringify(content))
-  // ! 模板
-  // `
-  // ${description}
-  // export const ${funcName} = (params) => {
-  //   return http.${method}(PORT1 + '${url}', params)
-  // }
-  // `
+  // 去掉首末的空格
+  content = content.trim()
+  if (content.length > 1000) {
+    return ElMessage.error('导出内容不能超过1000个字符')
+  }
 
   let basicContent = ''
   selectList.value.forEach((item) => {
@@ -86,10 +122,6 @@ const submit = async () => {
 
   // 清理
   URL.revokeObjectURL(url)
-  // return
-  // ElMessage.success()
-  // close()
-  // $emit('success', content)
 }
 /**
  * 替换字符串中的变量
@@ -107,12 +139,14 @@ const replaceVariables = (str: string, variables: MockApi.ResApiDetail): string 
   const funcName = variables.url ? variables.url.split('/').pop() : ''
   const method = (variables.method || '').toLowerCase()
   const url = variables.url || ''
-
+  const context = $props.baseUrl ? '/' + $props.baseUrl.split('/').pop() : ''
   // 替换字符串
-  let result = str.replace(/\${description}/g, description)
-  result = result.replace(/\${funcName}/g, funcName as string)
-  result = result.replace(/\${method}/g, method)
-  result = result.replace(/\${url}/g, url)
+  let result = str.replace(/lmDescription/g, description)
+  result = result.replace(/lmFuncName/g, funcName as string)
+  result = result.replace(/lmMethod/g, method)
+  result = result.replace(/LMMethod/g, variables.method)
+  result = result.replace(/lmUrl/g, url)
+  result = result.replace(/lmBaseUrl/g, context)
 
   return result
 }

@@ -117,7 +117,9 @@ export namespace Project {
     projectId: number
   }
 
-  export interface EditProjectReq extends AddProjectReq, DeleteProjectReq {}
+  export interface EditProjectReq extends AddProjectReq, DeleteProjectReq {
+    apiExportTemplate?: string
+  }
 
   export interface ResPorjectDetail {
     baseUrl: string
@@ -130,6 +132,7 @@ export namespace Project {
     updateTime: Date | string
     createTime: Date | string
     updateUserId: number
+    apiExportTemplate: string
     createUsername?: String
     members?: { id: number; username: string }[]
   }

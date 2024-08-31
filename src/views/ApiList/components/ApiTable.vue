@@ -138,7 +138,7 @@
   <ApiMoveDialog ref="apiMoveRef" :folder-list="folderList" @success="getApiList"></ApiMoveDialog>
   <UploadDialog ref="uploadDialogRef" @success="getApiList"></UploadDialog>
   <SwaggerUploadDialog ref="swaggerUploadDialogRef" @success="handleSwaggerImportSuccess"></SwaggerUploadDialog>
-  <ApiCustomExportDialog ref="ApiCustomExportDialogRef"></ApiCustomExportDialog>
+  <ApiCustomExportDialog ref="ApiCustomExportDialogRef" :base-url="$props.rootUrl"></ApiCustomExportDialog>
 </template>
 
 <script setup lang="ts">
@@ -329,30 +329,13 @@ const handleExportMock = async () => {
 
 const ApiCustomExportDialogRef = ref()
 // 导出api接口
-const handleExportApi = () => {
-  ApiCustomExportDialogRef.value.open(selectedList.value)
-  return
-  // let basicContent = ``
-  // tableData.value.forEach((item) => {
-  //   basicContent += `
-  //   // ${item.description}
-  //   export const ${item.url.split('/').pop()} = (params) => {
-  //     return http.${item.method.toLowerCase()}(PORT1 + '${item.url}', params)
-  //   }
-  //   `
-  // })
-  // // 创建 Blob 对象
-  // const blob = new Blob([basicContent], { type: 'application/javascript' })
+const handleExportApi = async () => {
+  if (!selectedList.value.length) {
+    const { data } = await apiListApi({ ...queryParams, pageNo: 1, pageSize: 100000 })
+    selectedList.value = data.list
+  }
 
-  // // 创建 URL 并下载
-  // const url = URL.createObjectURL(blob)
-  // const a = document.createElement('a')
-  // a.href = url
-  // a.download = 'generated.js'
-  // a.click()
-
-  // // 清理
-  // URL.revokeObjectURL(url)
+  selectedList.value.length && ApiCustomExportDialogRef.value.open(selectedList.value)
 }
 
 // 导入
@@ -389,6 +372,7 @@ const handleMoveApi = (row: MockApi.ResApiDetail) => {
   apiMoveRef.value.open(row.id)
 }
 
+// copy
 const { copy } = useClipboard()
 const handleCopy = (row: MockApi.ResApiDetail, type: string) => {
   if (navigator.clipboard) {

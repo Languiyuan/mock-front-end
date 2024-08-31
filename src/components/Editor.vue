@@ -2,7 +2,7 @@
  * @Description: monaco editor
  * @Author: yinkaiyuan
  * @Date: 2024-08-20 22:16:45
- * @LastEditTime: 2024-08-20 23:54:21
+ * @LastEditTime: 2024-08-31 16:45:48
  * @LastEditors: yinkaiyuan
 -->
 <template>
@@ -28,8 +28,10 @@ const $props = defineProps({
   }
 })
 
+const initContent = ref('')
 const container = ref(null)
-let editor = null
+let editor: monaco.editor.IStandaloneCodeEditor
+// const editor = ref<monaco.editor.IStandaloneCodeEditor>()
 onMounted(() => {
   window.MonacoEnvironment = {
     getWorker(_, label) {
@@ -59,6 +61,9 @@ onMounted(() => {
           enabled: false // 关闭缩略图
         }
       })
+      if (editor && initContent.value) {
+        editor.setValue(initContent.value)
+      }
     }
   })
 })
@@ -72,15 +77,40 @@ const getEditorContent = () => {
 }
 
 // 设置编辑器内容
-const setEditorContent = (content) => {
+const setEditorContent = (content: string) => {
+  initContent.value = content
   if (editor) {
     editor.setValue(content)
   }
 }
+/**
+ * 在光标位置或选区插入文本
+ * @param text 要插入的文本
+ */
+const insertText = (text: string) => {
+  const curSelection: monaco.Selection | null = editor.getSelection() // 选择的文本范围或光标的当前位置
+
+  if (!curSelection) return
+
+  const { selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn } = curSelection
+  // 在光标位置插入文本
+  editor.executeEdits('', [
+    {
+      range: new monaco.Range(selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn),
+      text, // 插入的文本
+      forceMoveMarkers: true
+    }
+  ])
+  // 核心 设置光标的位置
+  editor.setPosition({ column: positionColumn + text.length, lineNumber: selectionStartLineNumber })
+
+  editor.focus() // 插入完文本 需要聚焦下光标
+}
 
 defineExpose({
   getEditorContent,
-  setEditorContent
+  setEditorContent,
+  insertText
 })
 </script>
 
