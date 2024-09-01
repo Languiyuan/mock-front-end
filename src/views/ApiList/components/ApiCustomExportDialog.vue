@@ -1,9 +1,7 @@
 <template>
   <el-dialog v-model="dialogFormVisible" title="导出api接口" width="840" :before-close="close">
     <div class="flex items-center flex-wrap justify-start">
-      <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('// lmDescription /n')"
-        >注释：lmDescription</el-button
-      >
+      <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('// lmDescription')">注释：lmDescription</el-button>
       <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('lmFuncName')">函数名：lmFuncName</el-button>
       <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('lmMethod')">请求方式：lmMethod</el-button>
       <el-button class="!ml-2 mr-2 mt-2" type="primary" plain @click="handleInsertText('LMMethod')">请求方式(大写)：LMMethod</el-button>
@@ -50,7 +48,6 @@ const open = async (list: MockApi.ResApiDetail[]) => {
   selectList.value = list
   dialogFormVisible.value = true
   await getProjectDetail()
-  console.log('apiExportTemplate', apiExportTemplate)
   nextTick(() => {
     // editorRef.value.setEditorContent(
     //   '// lmDescription \n export const lmFuncName = (params) => {return http.lmMethod("lmBaseUrl" + "lmUrl", params)}'
@@ -107,8 +104,6 @@ const submit = async () => {
   selectList.value.forEach((item) => {
     basicContent += replaceVariables(content, item)
   })
-
-  console.log('basicContent', basicContent)
 
   // 创建 Blob 对象
   const blob = new Blob([basicContent], { type: 'application/javascript' })
