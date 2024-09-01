@@ -53,7 +53,7 @@ import MembersManage from '@/views/ApiList/components/MembersManage.vue'
 import { Member } from '../../api/interface/index'
 import { getMembersApi } from '../../api/modules/project'
 import { useUserStore } from '@/stores/modules/user'
-import { PORT1 } from '@/api/config/servicePort'
+import { PORT1, PORT3 } from '@/api/config/servicePort'
 
 // 获取项目详情
 const route = useRoute()
@@ -96,7 +96,7 @@ const getProjectDetail = async () => {
 }
 
 const rootUrl = computed(() => {
-  return `${window.location.origin}${PORT1}/mock/${projectDetail.value.sign}${projectDetail.value.baseUrl}`
+  return `${window.location.origin}:${PORT3}/${PORT1}/mock/${projectDetail.value.sign}${projectDetail.value.baseUrl}`
 })
 
 // 包含创建者

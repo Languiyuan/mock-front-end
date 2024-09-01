@@ -46,14 +46,14 @@ import { Project } from '@/api/interface'
 import { computed } from 'vue'
 import { formatTime } from '@/utils/index'
 import { useClipboard } from '@vueuse/core'
-import { PORT1 } from '@/api/config/servicePort'
+import { PORT1, PORT3 } from '@/api/config/servicePort'
 import { ElMessage } from 'element-plus'
 const $props = defineProps<{
   info: Project.ResPorjectDetail
 }>()
 
 const baseUrl = computed(() => {
-  return `${window.location.origin}${PORT1}/mock/${$props.info.sign}${$props.info.baseUrl}`
+  return `${window.location.origin}:${PORT3}/${PORT1}/mock/${$props.info.sign}${$props.info.baseUrl}`
 })
 const { copy } = useClipboard()
 const handleCopy = () => {
