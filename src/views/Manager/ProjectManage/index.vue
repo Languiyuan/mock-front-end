@@ -53,7 +53,7 @@
         <el-table-column label="操作" width="200">
           <template #default="scope">
             <el-button link type="primary" size="small" :disabled="scope.row.isAdmin" @click="handleAddMember(scope.row)">
-              添加成员
+              管理成员
             </el-button>
           </template>
         </el-table-column>
