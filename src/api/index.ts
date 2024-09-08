@@ -74,34 +74,38 @@ class RequestHttp {
 
         const userStore = useUserStore()
         console.log('response?.config', response?.config)
-        // 登陆失效 如果登录失效，是会到error中
-        if (response.data.code == ResultEnum.OVERDUE) {
-          if (refreshing) {
-            return new Promise((resolve) => {
-              queue.push({
-                config: response?.config,
-                resolve
-              })
-            })
-          }
+        // 登陆失效 如果登录失效，是会到error中  response可能是undefined
+        if (response?.data?.code == ResultEnum.OVERDUE) {
           // userStore.setToken('')
           if (response.config.url?.indexOf('/user/refresh') === -1) {
+            // 不是refresh的请求才能推进队列
+            if (refreshing) {
+              return new Promise((resolve) => {
+                queue.push({
+                  config: response?.config,
+                  resolve
+                })
+              })
+            }
+
             refreshing = true
             const { data } = await refreshApi({ refreshToken: userStore.refreshToken })
-            userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
-            response.config.headers.set('authorization', `Bearer ${userStore.accessToken}`)
             refreshing = false
-            // 将推入队列中的请求也resolve
-            queue.forEach(async ({ config, resolve }) => {
-              resolve(this.service(config))
-            })
-            // clear the queue
-            // queue.length = 0
-            queue = []
-
-            // 重新请求原来的接口
-            return this.service(response.config)
+            if (data.accessToken && data.refreshToken) {
+              userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
+              response.config.headers.set('authorization', `Bearer ${userStore.accessToken}`)
+              // 将推入队列中的请求也resolve
+              queue.forEach(async ({ config, resolve }) => {
+                resolve(this.service(config))
+              })
+              // clear the queue
+              queue = []
+              // 重新请求原来的接口
+              return this.service(response.config)
+            }
           }
+          // 如果refreshToken也失效  clear the queue
+          queue = []
           userStore.setToken({ accessToken: '', refreshToken: '' })
           console.log('-------------')
           router.replace('/login')
