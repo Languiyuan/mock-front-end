@@ -47,6 +47,12 @@ class RequestHttp {
       }
     )
 
+    interface PendingTask {
+      config: AxiosRequestConfig
+      resolve: Function
+    }
+    let refreshing = false
+    let queue: PendingTask[] = []
     /**
      * @description 响应拦截器
      *  服务器换返回信息 -> [拦截统一处理] -> 客户端JS获取到信息
@@ -54,24 +60,7 @@ class RequestHttp {
     this.service.interceptors.response.use(
       async (response: AxiosResponse) => {
         const { data } = response
-        // const userStore = useUserStore()
-        // 登陆失效 如果登录失效，是会到error中
-        if (data.code == ResultEnum.OVERDUE) {
-          // userStore.setToken('')
-          // if (response.config.url?.indexOf('/user/refresh') === -1) {
-          //   const { data } = await refreshApi({ refreshToken: userStore.refreshToken })
-          //   userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
-          //   response.config.headers.set('authorization', `Bearer ${userStore.accessToken}`)
-          //   axios(response.config)
-          //   return
-          // }
-          // userStore.setToken({ accessToken: '', refreshToken: '' })
-          // console.log('-------------')
-          // router.replace('/login')
-          // // ElMessage.error('登录失效')
-          // if (response) checkStatus(response.status)
-          // return Promise.reject(response.data)
-        }
+
         // 全局错误信息拦截（防止下载文件的时候返回数据流，没有 code 直接报错）
         if (data.code && data.code !== ResultEnum.SUCCESS) {
           ElMessage.error(data.message)
@@ -82,19 +71,36 @@ class RequestHttp {
       },
       async (error: AxiosError) => {
         const { response } = error as { response: AxiosResponse }
-        const userStore = useUserStore()
 
+        const userStore = useUserStore()
         console.log('response?.config', response?.config)
-        // 登陆失效 如果登录失效，是会到error中?
+        // 登陆失效 如果登录失效，是会到error中
         if (response.data.code == ResultEnum.OVERDUE) {
+          if (refreshing) {
+            return new Promise((resolve) => {
+              queue.push({
+                config: response?.config,
+                resolve
+              })
+            })
+          }
           // userStore.setToken('')
           if (response.config.url?.indexOf('/user/refresh') === -1) {
+            refreshing = true
             const { data } = await refreshApi({ refreshToken: userStore.refreshToken })
             userStore.setToken({ accessToken: data.accessToken, refreshToken: data.refreshToken })
             response.config.headers.set('authorization', `Bearer ${userStore.accessToken}`)
+            refreshing = false
+            // 将推入队列中的请求也resolve
+            queue.forEach(async ({ config, resolve }) => {
+              resolve(this.service(config))
+            })
+            // clear the queue
+            // queue.length = 0
+            queue = []
 
-            axios(response.config)
-            return
+            // 重新请求原来的接口
+            return this.service(response.config)
           }
           userStore.setToken({ accessToken: '', refreshToken: '' })
           console.log('-------------')
