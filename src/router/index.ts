@@ -145,6 +145,11 @@ const router = createRouter({
       ]
     },
     {
+      path: '/500',
+      name: '500',
+      component: () => import('@/views/Error/500.vue')
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'notFound',
       component: () => import('@/views/Error/404.vue')

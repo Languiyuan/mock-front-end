@@ -9,7 +9,7 @@ import { ref, reactive, watch } from 'vue'
 import { VAceEditor } from 'vue3-ace-editor'
 import '../../ApiList/components/ace.config'
 import type { Ace } from 'ace-builds'
-// import beautify from 'js-beautify'
+import beautify from 'js-beautify'
 
 const $props = defineProps<{
   mockRule: string
@@ -19,7 +19,8 @@ const content = ref('')
 watch(
   () => $props.mockRule,
   () => {
-    content.value = JSON.parse($props.mockRule)
+    const options1 = { indent_size: 2, space_in_empty_paren: true }
+    content.value = beautify($props.mockRule, options1)
   },
   {
     immediate: true
