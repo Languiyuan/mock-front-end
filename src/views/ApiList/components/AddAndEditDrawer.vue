@@ -29,7 +29,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="接口延迟(S)" class="w-[180px]">
-            <el-input-number v-model="formData.delay" :min="0" :max="20" disabled />
+            <el-input-number v-model="formData.delay" :min="0" :max="20" />
           </el-form-item>
           <el-form-item label="接口url(不包含baseUrl)" class="w-full" prop="url">
             <el-input v-model="formData.url" placeholder="example: /test" />
