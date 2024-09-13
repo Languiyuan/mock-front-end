@@ -164,7 +164,7 @@ const handleGetMember = (updateUserId: number) => {
 }
 
 const handleMockRuleApply = (row: MockApi.ResApiHistory) => {
-  ElMessageBox.confirm('请确认是否应用该规则', '提示', {
+  ElMessageBox.confirm('请确认是否应用该mock规则', '提示', {
     confirmButtonText: '确认',
     cancelButtonText: '取消',
     type: 'warning'
@@ -180,6 +180,8 @@ const handleMockRuleApply = (row: MockApi.ResApiHistory) => {
         delay: apiDetail.value!.delay,
         description: apiDetail.value!.description,
         on: apiDetail.value!.on,
+        paramsCheckOn: apiDetail.value!.paramsCheckOn,
+        params: apiDetail.value!.params,
         mockRule: row.mockRule
       }
       await apiEdit(params)
@@ -205,7 +207,9 @@ const handleCompleteApply = (row: MockApi.ResApiHistory) => {
         delay: row.delay,
         description: row.description,
         on: row.on,
-        mockRule: row.mockRule
+        mockRule: row.mockRule,
+        paramsCheckOn: row.paramsCheckOn,
+        params: row.params
       }
 
       await apiEdit(params)

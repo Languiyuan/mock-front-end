@@ -242,6 +242,8 @@ export namespace MockApi {
     method: string
     delay: number
     description?: string
+    paramsCheckOn: number
+    params: string
     on: OnStatus
   }
 
