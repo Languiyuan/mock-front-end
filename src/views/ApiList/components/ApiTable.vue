@@ -142,14 +142,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, watch } from 'vue'
+import { ref, onMounted, reactive, computed, watch, h } from 'vue'
 import { apiListApi } from '@/api/modules/mockApi'
 import { MockApi, Folder } from '../../../api/interface/index'
 import { formatTime } from '../../../utils/index'
 import { useRoute, useRouter } from 'vue-router'
 import AddAndEditDrawer from '@/views/ApiList/components/AddAndEditDrawer.vue'
 import { apiBatchDeleteApi } from '../../../api/modules/mockApi'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElSwitch } from 'element-plus'
 import { useClipboard } from '@vueuse/core'
 import FolderBar from '@/views/ApiList/components/FolderBar.vue'
 import { folderListApi } from '../../../api/modules/project'
@@ -284,17 +284,132 @@ const handleExport = async () => {
   }
 }
 
+const mockFunc = `
+const parseQueryParams = (url) => {
+  try {
+    // 提取查询字符串部分
+    const queryString = url.split('?')[1] || '';
+    
+    // 分割参数
+    const paramsArray = queryString.split('&');
+    const result = {};
+
+    // 解析参数
+    paramsArray.forEach(param => {
+      const [key, value] = param.split('=');
+      if (key) {
+        result[key] = decodeURIComponent(value || ''); // 处理 URL 编码
+      }
+    });
+
+    return result;
+  } catch (error) {
+    return {};
+  }
+};
+
+
+const validateParams = (query, body, paramsMap) => {
+  const paramsError = [];
+
+  paramsMap.queryParams.length &&
+    paramsMap.queryParams.forEach((item) => {
+      if (item.required && !query.hasOwnProperty(item.name)) {
+        paramsError.push('query参数' + item.name + '缺失');
+        return; // 如果是必需且不存在，则直接返回，不需要继续检查类型
+      }
+
+      if (query.hasOwnProperty(item.name)) {
+        const type = getType(query[item.name]);
+        if (!item.type.includes(type)) {
+          paramsError.push('query参数' + item.name + '类型错误应为' + item.type);
+        }
+      }
+    });
+
+  if (body) {
+    if (paramsMap.bodyParamsType === 'array' && getType(body) !== 'array') {
+      paramsError.push('body参数类型错误应为数组');
+    }
+
+    if (paramsMap.bodyParamsType === 'object') {
+      if (getType(body) !== 'object') {
+        paramsError.push('body参数类型错误应为object');
+      } else {
+        paramsMap.bodyParams.length &&
+          paramsMap.bodyParams.forEach((item) => {
+            if (body.hasOwnProperty(item.name)) {
+              const type = getType(body[item.name]);
+              if (!item.type.includes(type)) {
+                paramsError.push(
+                  'body参数' + item.name + '类型错误应为' + item.type,
+                );
+              }
+            } else if (item.required) {
+              paramsError.push('body参数' + item.name + '缺失');
+            }
+          });
+      }
+    }
+  }
+
+  if (paramsError.length) {
+    return paramsError.join(';')
+  } else {
+    return ''
+  }
+};
+
+const getType = (variable) => {
+  const type = typeof variable;
+
+  switch (type) {
+    case 'undefined':
+    case 'boolean':
+    case 'number':
+    case 'string':
+    case 'function':
+      return type;
+    case 'object':
+      if (variable === null) {
+        return 'null';
+      } else if (Array.isArray(variable)) {
+        return 'array';
+      } else {
+        return 'object';
+      }
+    default:
+      return 'unknown';
+  }
+};`
 // 导出mockjs
 const handleExportMock = async () => {
-  ElMessageBox.confirm(
-    selectedList.value.length ? `确认导出选中的${selectedList.value.length}个接口为Mockjs格式?` : '确认导出所有接口为Mockjs格式?',
-    'Tip',
-    {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'info'
-    }
-  )
+  let checked = ref(false)
+
+  ElMessageBox({
+    title: '提示',
+    type: 'info',
+    customClass: 'export-mock-msg-box',
+    // Should pass a function if VNode contains dynamic props
+    message: () =>
+      h('div', null, [
+        h(
+          'p',
+          null,
+          selectedList.value.length ? `确认导出选中的${selectedList.value.length}个接口为Mockjs格式?` : '确认导出所有接口为Mockjs格式?'
+        ),
+        h('p', {style: 'margin-top: 10px;'}, [
+          h('span', null, '是否导出参数校验：'),
+          h(ElSwitch, {
+            modelValue: checked.value,
+            'onUpdate:modelValue': (val: boolean | string | number) => {
+              checked.value = val as boolean
+            }
+          })
+        ])
+      ]),
+    confirmButtonText: '确认',
+  })
     .then(async () => {
       let list = []
       if (selectedList.value.length) {
@@ -306,11 +421,36 @@ const handleExportMock = async () => {
 
       let basicContent = `const Mock = require('mockjs');`
       list.forEach((item) => {
-        basicContent += `
+        if(checked.value && item.paramsCheckOn === 1) {
+          basicContent += `
+          // ${item.description}
+          Mock.mock('${item.url}', '${item.method.toLowerCase()}', (options) => {
+             const queryData = parseQueryParams(options.url)
+             const params = ${item.params}
+             const validateRes = validateParams(queryData, options.body ? JSON.parse(options.body) : {}, params)
+            if(validateRes) {
+              return {
+                "code": 400,
+                "message": "fail",
+                "data": validateRes
+              }
+            }
+
+            return ${JSON.stringify(JSON.parse(item.mockRule))}
+          });`
+        } else {
+                basicContent += `
           // ${item.description}
           Mock.mock('${item.url}', '${item.method.toLowerCase()}', ${JSON.stringify(JSON.parse(item.mockRule))});
           `
+        }
+  
       })
+
+      if(checked.value) {
+        basicContent += mockFunc
+      }
+
       // 创建 Blob 对象
       const blob = new Blob([basicContent], { type: 'application/javascript' })
 
@@ -410,6 +550,11 @@ const handleGoHistory = (row: MockApi.ResApiDetail) => {
 .api-header-row-class-name {
   .el-table__cell {
     color: #000;
+  }
+}
+.export-mock-msg-box {
+  .el-message-box__container {
+    align-items: flex-start;
   }
 }
 </style>
