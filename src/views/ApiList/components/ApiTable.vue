@@ -158,6 +158,7 @@ import { exportProjectAllApi } from '@/api/modules/mockApi'
 import UploadDialog from './UploadDialog.vue'
 import SwaggerUploadDialog from './SwaggerUploadDialog.vue'
 import ApiCustomExportDialog from '@/views/ApiList/components/ApiCustomExportDialog.vue'
+import { validateParams, parseQueryParams, getType, urlToRegex } from '@/utils/mockFunc'
 
 const $props = defineProps<{
   rootUrl: string
@@ -284,104 +285,6 @@ const handleExport = async () => {
   }
 }
 
-const mockFunc = `
-const parseQueryParams = (url) => {
-  try {
-    // 提取查询字符串部分
-    const queryString = url.split('?')[1] || '';
-    
-    // 分割参数
-    const paramsArray = queryString.split('&');
-    const result = {};
-
-    // 解析参数
-    paramsArray.forEach(param => {
-      const [key, value] = param.split('=');
-      if (key) {
-        result[key] = decodeURIComponent(value || ''); // 处理 URL 编码
-      }
-    });
-
-    return result;
-  } catch (error) {
-    return {};
-  }
-};
-
-
-const validateParams = (query, body, paramsMap) => {
-  const paramsError = [];
-
-  paramsMap.queryParams.length &&
-    paramsMap.queryParams.forEach((item) => {
-      if (item.required && !query.hasOwnProperty(item.name)) {
-        paramsError.push('query参数' + item.name + '缺失');
-        return; // 如果是必需且不存在，则直接返回，不需要继续检查类型
-      }
-
-      if (query.hasOwnProperty(item.name)) {
-        const type = getType(query[item.name]);
-        if (!item.type.includes(type)) {
-          paramsError.push('query参数' + item.name + '类型错误应为' + item.type);
-        }
-      }
-    });
-
-  if (body) {
-    if (paramsMap.bodyParamsType === 'array' && getType(body) !== 'array') {
-      paramsError.push('body参数类型错误应为数组');
-    }
-
-    if (paramsMap.bodyParamsType === 'object') {
-      if (getType(body) !== 'object') {
-        paramsError.push('body参数类型错误应为object');
-      } else {
-        paramsMap.bodyParams.length &&
-          paramsMap.bodyParams.forEach((item) => {
-            if (body.hasOwnProperty(item.name)) {
-              const type = getType(body[item.name]);
-              if (!item.type.includes(type)) {
-                paramsError.push(
-                  'body参数' + item.name + '类型错误应为' + item.type,
-                );
-              }
-            } else if (item.required) {
-              paramsError.push('body参数' + item.name + '缺失');
-            }
-          });
-      }
-    }
-  }
-
-  if (paramsError.length) {
-    return paramsError.join(';')
-  } else {
-    return ''
-  }
-};
-
-const getType = (variable) => {
-  const type = typeof variable;
-
-  switch (type) {
-    case 'undefined':
-    case 'boolean':
-    case 'number':
-    case 'string':
-    case 'function':
-      return type;
-    case 'object':
-      if (variable === null) {
-        return 'null';
-      } else if (Array.isArray(variable)) {
-        return 'array';
-      } else {
-        return 'object';
-      }
-    default:
-      return 'unknown';
-  }
-};`
 // 导出mockjs
 const handleExportMock = async () => {
   let checked = ref(false)
@@ -398,7 +301,7 @@ const handleExportMock = async () => {
           null,
           selectedList.value.length ? `确认导出选中的${selectedList.value.length}个接口为Mockjs格式?` : '确认导出所有接口为Mockjs格式?'
         ),
-        h('p', {style: 'margin-top: 10px;'}, [
+        h('p', { style: 'margin-top: 10px;' }, [
           h('span', null, '是否导出参数校验：'),
           h(ElSwitch, {
             modelValue: checked.value,
@@ -408,7 +311,7 @@ const handleExportMock = async () => {
           })
         ])
       ]),
-    confirmButtonText: '确认',
+    confirmButtonText: '确认'
   })
     .then(async () => {
       let list = []
@@ -419,12 +322,15 @@ const handleExportMock = async () => {
         list = data.list
       }
 
-      let basicContent = `const Mock = require('mockjs');`
+      let basicContent = `
+      const Mock = require('mockjs'); // webpack
+      // import Mock from 'mockjs' // vite
+      `
       list.forEach((item) => {
-        if(checked.value && item.paramsCheckOn === 1) {
+        if (checked.value && item.paramsCheckOn === 1) {
           basicContent += `
           // ${item.description}
-          Mock.mock('${item.url}', '${item.method.toLowerCase()}', (options) => {
+          Mock.mock(urlToRegex('${item.url}'), '${item.method.toLowerCase()}', (options) => {
              const queryData = parseQueryParams(options.url)
              const params = ${item.params}
              const validateRes = validateParams(queryData, options.body ? JSON.parse(options.body) : {}, params)
@@ -439,17 +345,19 @@ const handleExportMock = async () => {
             return ${JSON.stringify(JSON.parse(item.mockRule))}
           });`
         } else {
-                basicContent += `
+          basicContent += `
           // ${item.description}
-          Mock.mock('${item.url}', '${item.method.toLowerCase()}', ${JSON.stringify(JSON.parse(item.mockRule))});
+          Mock.mock(urlToRegex('${item.url}'), '${item.method.toLowerCase()}', ${JSON.stringify(JSON.parse(item.mockRule))});
           `
         }
-  
       })
 
-      if(checked.value) {
-        basicContent += mockFunc
+      if (checked.value) {
+        basicContent += validateParams
+        basicContent += parseQueryParams
+        basicContent += getType
       }
+      basicContent += urlToRegex
 
       // 创建 Blob 对象
       const blob = new Blob([basicContent], { type: 'application/javascript' })
