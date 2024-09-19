@@ -96,7 +96,7 @@ const getProjectDetail = async () => {
 }
 
 const rootUrl = computed(() => {
-  return `${window.location.origin}:${PORT3}/${PORT1}/mock/${projectDetail.value.sign}${projectDetail.value.baseUrl}`
+  return `${window.location.protocol}//${window.location.hostname}:${PORT3}${PORT1}/mock/${projectDetail.value.sign}${projectDetail.value.baseUrl}`
 })
 
 // 包含创建者

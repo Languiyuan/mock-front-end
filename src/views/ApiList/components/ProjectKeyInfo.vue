@@ -53,7 +53,7 @@ const $props = defineProps<{
 }>()
 
 const baseUrl = computed(() => {
-  return `${window.location.origin}:${PORT3}/${PORT1}/mock/${$props.info.sign}${$props.info.baseUrl}`
+  return `${window.location.protocol}//${window.location.hostname}:${PORT3}${PORT1}/mock/${$props.info.sign}${$props.info.baseUrl}`
 })
 const { copy } = useClipboard()
 const handleCopy = () => {
