@@ -323,8 +323,7 @@ const handleExportMock = async () => {
       }
 
       let basicContent = `
-      const Mock = require('mockjs'); // webpack
-      // import Mock from 'mockjs' // vite
+      import Mock from 'mockjs'
       `
       list.forEach((item) => {
         if (checked.value && item.paramsCheckOn === 1) {
@@ -342,7 +341,7 @@ const handleExportMock = async () => {
               }
             }
 
-            return ${JSON.stringify(JSON.parse(item.mockRule))}
+            return Mock.mock(${JSON.stringify(JSON.parse(item.mockRule))}) 
           });`
         } else {
           basicContent += `
@@ -353,6 +352,8 @@ const handleExportMock = async () => {
       })
 
       if (checked.value) {
+        basicContent += `
+        /***************** Utility Functions ******************/`
         basicContent += validateParams
         basicContent += parseQueryParams
         basicContent += getType
