@@ -58,8 +58,8 @@ const addFolder = () => {
   ElMessageBox.prompt('请输入新增目录名称', '新增目录', {
     confirmButtonText: '提交',
     cancelButtonText: '取消',
-    inputPattern: /^[\u4e00-\u9fa5a-zA-Z0-9]{2,15}$/,
-    inputErrorMessage: '字符长度要求2-15,不包含特殊字符'
+    inputPattern: /^[a-zA-Z0-9_/\u4e00-\u9fa5-]{1,50}$/,
+    inputErrorMessage: '字符长度要求小于50,不包含特殊字符'
   })
     .then(async ({ value }) => {
       const params: Folder.ReqAddFolder = {
