@@ -153,8 +153,9 @@ const open = (apiData: MockApi.ResApiDetail | null = null) => {
 
     nextTick(() => {
       aceEditorRef.value.setContent(
+        '{"code":"0","data":{},"msg":"success"}'
         // '{"list|1-10":[{"id|+1":1,"name":"@cname","age|20-30":25233}]}'
-        '{\r\n  "list|1-10": [\r\n    {\r\n      "id|+1": 1,\r\n      "name": "@cname",\r\n      "age|20-30": 25\r\n    }\r\n  ]\r\n}'
+        // '{\r\n  "list|1-10": [\r\n    {\r\n      "id|+1": 1,\r\n      "name": "@cname",\r\n      "age|20-30": 25\r\n    }\r\n  ]\r\n}'
       )
     })
   }
@@ -271,7 +272,7 @@ const submit = () => {
       const params: MockApi.ReqEditApi = {
         id: apiId.value,
         projectId: $props.projectId,
-        folderId: $props.folderId || null,
+        // folderId: $props.folderId || null,
         mockRule: aceContent,
         // mockRule: JSON.stringify(aceContent),
         ...formData.value

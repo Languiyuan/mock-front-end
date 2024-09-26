@@ -235,7 +235,7 @@ export namespace MockApi {
   }
   export interface ReqAddApi {
     projectId: number
-    folderId: number | null
+    folderId?: number | null
     name: string
     url: string
     mockRule: string
