@@ -243,7 +243,7 @@ const submit = () => {
     if (!valid) return
     const aceContent = aceEditorRef.value.getContent()
     if (aceContent === 'illegal') return
-    console.log('aceContent', typeof aceContent, aceContent, JSON.stringify(JSON.parse(aceContent)))
+    // console.log('aceContent', typeof aceContent, aceContent, JSON.stringify(JSON.parse(aceContent)))
     // try {
     //   JSON.parse(aceContent)
     //   JSON.stringify(aceContent)

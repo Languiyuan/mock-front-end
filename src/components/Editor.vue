@@ -31,6 +31,7 @@ const $props = defineProps({
 const initContent = ref('')
 const container = ref(null)
 let editor: monaco.editor.IStandaloneCodeEditor
+
 // const editor = ref<monaco.editor.IStandaloneCodeEditor>()
 onMounted(() => {
   window.MonacoEnvironment = {
@@ -107,10 +108,15 @@ const insertText = (text: string) => {
   editor.focus() // 插入完文本 需要聚焦下光标
 }
 
+const  getEditorInstance = () => {
+  return editor
+}
+
 defineExpose({
   getEditorContent,
   setEditorContent,
-  insertText
+  insertText,
+  getEditorInstance
 })
 </script>
 
