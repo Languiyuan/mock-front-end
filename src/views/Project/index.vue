@@ -113,8 +113,9 @@ const handleAddProject = () => {
 
 // * 编辑项目
 const handleEdit = (project: Project.ResPorjectDetail) => {
-  type.value = 'eidt'
+  type.value = 'edit'
   projectInfo.value = project
+  console.log('projectInfo.value', projectInfo.value)
   addProjectDialog.value.open()
 }
 

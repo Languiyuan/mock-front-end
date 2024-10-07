@@ -73,7 +73,6 @@ class RequestHttp {
         const { response } = error as { response: AxiosResponse }
 
         const userStore = useUserStore()
-        console.log('response?.config', response?.config)
         // 登陆失效 如果登录失效，是会到error中  response可能是undefined
         if (response?.data?.code == ResultEnum.OVERDUE) {
           // userStore.setToken('')

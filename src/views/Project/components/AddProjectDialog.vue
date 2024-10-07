@@ -10,6 +10,12 @@
       <el-form-item prop="description" label="项目描述">
         <el-input v-model="formData.description" :rows="4" type="textarea" maxlength="100" show-word-limit />
       </el-form-item>
+      <el-form-item v-if="type === 'edit'" prop="isProxy" label="开启代理">
+        <el-switch v-model="formData.isProxy" :active-value="1" :inactive-value="0" />
+      </el-form-item>
+      <el-form-item v-if="type === 'edit' && formData.isProxy === 1" prop="isAllProxy" label="开启全局代理">
+        <el-switch v-model="formData.isAllProxy" :active-value="1" :inactive-value="0" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
@@ -42,10 +48,17 @@ watch(
   () => $props.info,
   () => {
     if ($props.info) {
-      const { name, baseUrl, description } = $props.info
+      const { name, baseUrl, description, isProxy, isAllProxy, proxyHeaders } = $props.info
       formData.name = name
       formData.baseUrl = baseUrl
       formData.description = description
+      formData.isProxy = isProxy
+      formData.isAllProxy = isAllProxy
+      formData.proxyHeaders = proxyHeaders
+    } else {
+      formData.name = ''
+      formData.baseUrl = ''
+      formData.description = ''
     }
   },
   { deep: true }
@@ -53,7 +66,7 @@ watch(
 
 const dialogFormVisible = ref(false)
 const addProjectFormRef = ref<FormInstance>()
-const formData = reactive<Project.AddProjectReq>({
+const formData = reactive<Project.EditProjectReq>({
   name: '',
   baseUrl: '',
   description: ''
