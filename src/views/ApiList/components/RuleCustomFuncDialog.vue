@@ -15,7 +15,6 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import Editor from '@/components/Editor.vue'
-// import * as monaco from 'monaco-editor'
 
 const $emit = defineEmits<{
   change: [string]
@@ -38,48 +37,12 @@ const close = () => {
 }
 
 const handleConfirm = () => {
-  // dialogFormVisible.value = false
-  // const editorInstance:monaco.editor.IStandaloneCodeEditor = editorRef.value.getEditorInstance()
-  // const model = editorInstance.getModel()
-  // const range = model?.getFullModelRange()
-
-  // // 获取格式化选项，确保添加分号
-  // const options = {
-  //   tabSize: 2,
-  //   insertSpaces: true,
-  //   semicolons: true // 确保添加分号
-  // }
-
-  // // 获取格式化后的代码
-  // const edits = model?.getFormattingEditsForRange(range, options)
-
-  // if (edits) {
-  //   editorInstance.executeEdits('', edits)
-  // }
-  const content = formatCodeWithSemicolons( editorRef.value.getEditorContent())
-  console.log('content11111',content)
   $emit('change', editorRef.value.getEditorContent())
 }
 
-const formatCodeWithSemicolons = (code:string) => {
-    // 将函数转换为字符串
-    let funcString = code;
-
-    // 正则表达式匹配需要添加分号的位置
-    const semicolonPattern = /([^\s;{}])\s*([{}])/g; // 匹配非空白字符后面紧跟着 { 或 }
-
-    // 在匹配的位置添加分号
-    funcString = funcString.replace(semicolonPattern, '$1;$2');
-
-    // 替换行末的单行语句
-    funcString = funcString.replace(/([^\s;{}]+)(?=\n)/g, '$1;');
-
-    // 确保最后不重复添加分号
-    return funcString.endsWith(';') ? funcString : funcString + ';';
-}
-
 defineExpose({
-  open
+  open,
+  close
 })
 </script>
 

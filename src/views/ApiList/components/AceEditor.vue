@@ -43,8 +43,9 @@ import { VAceEditor } from 'vue3-ace-editor'
 import './ace.config'
 import type { Ace } from 'ace-builds'
 import beautify from 'js-beautify'
-import { ElNotification } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 import RuleCustomFuncDialog from './RuleCustomFuncDialog.vue'
+import { Range } from 'ace-builds'
 
 const aceRef = ref()
 const aceInstance = ref<Ace.Editor>()
@@ -53,7 +54,6 @@ const selectedText = ref('')
 onMounted(() => {
   nextTick(() => {
     aceInstance.value = aceRef.value.getAceInstance()
-    console.log('aceInstance.value', aceInstance.value)
     // 监听selectionChange事件
     aceInstance.value &&
       aceInstance.value.getSelection().on('changeSelection', function () {
@@ -112,41 +112,78 @@ const aceTheme = ref('monokai')
 const handleFormat = () => {
   const options1 = { indent_size: 2, space_in_empty_paren: true }
 
-  // content.value = beautify(JSON.stringify(JSON.parse(content.value)), options)
   content.value = beautify(content.value, options1)
 }
 
 const ruleCustomFuncDialogRef = ref()
+const funcContentRange = reactive({
+  row: -1,
+  columnStart: 0,
+  columnEnd: 0
+})
+
 // 编辑函数
 const handleEditFunc = () => {
-  let content = getContentWithinBrackets()
-  content = `
+  let funcContent = getContentWithinBrackets()
+  if (funcContent === null) {
+    ElMessage.error('@LMFunc后需要有闭合的括号，如 @LMFunc()')
+    return
+  }
+
+  let content = `
   // 函数内部禁止注释; 具体详见使用文档
-  const LMFunc = (options) => {${content}}
-  `
+  const LMFunc = (options) => {`
+  funcContent.split('\\n').forEach((item) => {
+    content += `${item.trim()}`
+  })
+  content += `}`
+
   // 格式化
   const options1 = { indent_size: 2, space_in_empty_paren: true }
   content = beautify(content, options1)
   ruleCustomFuncDialogRef.value.open(content)
 }
+
 // 自定义函数确认
 const handleCustomFunc = (content: string) => {
   const options2 = {
     indent_size: 0,
     space_in_empty_paren: false,
-    end_with_newline: false,
+    end_with_newline: false
   }
   const simpleContent = beautify(content, options2)
-  console.log('simpleContent', simpleContent)
+  try {
+    JSON.parse(JSON.stringify(simpleContent))
+    const funcCode = JSON.stringify(simpleContent)
+    console.log('funcCode', extractFunctionBody(funcCode))
+
+    const editor = aceInstance.value as Ace.Editor
+    const doc = editor.getSession().getDocument()
+    const replaceRange = new Range(funcContentRange.row, funcContentRange.columnStart, funcContentRange.row, funcContentRange.columnEnd)
+
+    doc.replace(replaceRange, extractFunctionBody(funcCode) as string)
+
+    ruleCustomFuncDialogRef.value.close()
+  } catch (error) {
+    ElMessage.error(error as string)
+  }
 }
 
-// 获取函数内容
+// 提取函数体内容 从函数编辑器
+const extractFunctionBody = (code: string) => {
+  // 使用正则表达式匹配函数体
+  const match = code.match(/const LMFunc\s*=\s*\(.*?\)\s*=>\s*{([^]*)}/)
+  return match ? match[1].trim() : '' // 返回函数体内容并去掉首尾空白
+}
+
+// 获取函数内容  从mockRule 到 函数编辑dialog
 const getContentWithinBrackets = () => {
   const editor = aceInstance.value as Ace.Editor
   let session = editor.getSession()
   let cursorPosition = editor.getCursorPosition()
   let lineNumber = cursorPosition.row
   let lineContent = session.getLine(lineNumber) // 获取当前行的内容
+  funcContentRange.row = lineNumber
 
   let content = ''
   let openBrackets = 0
@@ -161,6 +198,11 @@ const getContentWithinBrackets = () => {
 
     content += char // 添加当前字符到内容中
 
+    // 统计开始函数内容开始值
+    if (content.length === 1) {
+      funcContentRange.columnStart = i + 1
+    }
+
     // 统计括号
     if (char === '(') {
       openBrackets++
@@ -169,13 +211,13 @@ const getContentWithinBrackets = () => {
 
       // 如果找到了匹配的闭合括号，结束循环
       if (openBrackets === 0) {
-        console.log('包含的内容:', content)
-        return content.slice(1, -1) // 返回内容
+        funcContentRange.columnEnd = i
+        return content.slice(1, -1) // 返回内容 去掉括号
       }
     }
   }
 
-  // 如果没有找到匹配的闭合括号，可以在这里处理
+  // 没有找到匹配的闭合括号
   console.log('未找到闭合括号')
   return null
 }
