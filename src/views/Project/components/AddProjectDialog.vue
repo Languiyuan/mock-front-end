@@ -46,6 +46,10 @@ watch(
       formData.name = name
       formData.baseUrl = baseUrl
       formData.description = description
+    } else {
+      formData.name = ''
+      formData.baseUrl = ''
+      formData.description = ''
     }
   },
   { deep: true }
@@ -53,7 +57,7 @@ watch(
 
 const dialogFormVisible = ref(false)
 const addProjectFormRef = ref<FormInstance>()
-const formData = reactive<Project.AddProjectReq>({
+const formData = reactive<Project.EditProjectReq>({
   name: '',
   baseUrl: '',
   description: ''

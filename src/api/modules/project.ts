@@ -23,6 +23,10 @@ export const getProjectDetailApi = (params: Project.DeleteProjectReq) => {
   return http.get<Project.ResPorjectDetail>(PORT1 + '/project/detail', params)
 }
 
+export const setProxyConfig = (params: Project.ResProxyInfo) => {
+  return http.post<string>(PORT1 + '/project/proxyConfig', params)
+}
+
 // Folder
 export const addFolderApi = (params: Folder.ReqAddFolder) => {
   return http.post<Folder.ResAddFolder>(PORT1 + '/project/addFolder', params)

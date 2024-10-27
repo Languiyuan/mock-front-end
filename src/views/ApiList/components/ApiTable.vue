@@ -7,6 +7,8 @@
         <el-button type="primary" icon="Search" @click="getApiList">查询</el-button>
       </div>
       <div class="h-full flex items-center">
+        <el-button type="primary" icon="Promotion" @click="handleProxy">代理配置</el-button>
+
         <el-popover placement="bottom" trigger="hover">
           <template #reference>
             <el-button type="primary" icon="Upload">导入</el-button>
@@ -139,6 +141,7 @@
   <UploadDialog ref="uploadDialogRef" @success="getApiList"></UploadDialog>
   <SwaggerUploadDialog ref="swaggerUploadDialogRef" @success="handleSwaggerImportSuccess"></SwaggerUploadDialog>
   <ApiCustomExportDialog ref="ApiCustomExportDialogRef" :base-url="$props.rootUrl"></ApiCustomExportDialog>
+  <ProxyConfigDialog ref="proxyConfigDialogRef"></ProxyConfigDialog>
 </template>
 
 <script setup lang="ts">
@@ -159,6 +162,7 @@ import UploadDialog from './UploadDialog.vue'
 import SwaggerUploadDialog from './SwaggerUploadDialog.vue'
 import ApiCustomExportDialog from '@/views/ApiList/components/ApiCustomExportDialog.vue'
 import { validateParams, parseQueryParams, getType, urlToRegex } from '@/utils/mockFunc'
+import ProxyConfigDialog from './ProxyConfigDialog.vue'
 
 const $props = defineProps<{
   rootUrl: string
@@ -341,7 +345,7 @@ const handleExportMock = async () => {
               }
             }
 
-            return Mock.mock(${JSON.stringify(JSON.parse(item.mockRule))}) 
+            return Mock.mock(${JSON.stringify(JSON.parse(item.mockRule))})
           });`
         } else {
           basicContent += `
@@ -419,6 +423,12 @@ const handleAddOrEditSuccess = () => {
 const apiMoveRef = ref()
 const handleMoveApi = (row: MockApi.ResApiDetail) => {
   apiMoveRef.value.open(row.id)
+}
+
+// proxy
+const proxyConfigDialogRef = ref()
+const handleProxy = () => {
+  proxyConfigDialogRef.value.open()
 }
 
 // copy
