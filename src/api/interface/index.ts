@@ -119,9 +119,11 @@ export namespace Project {
 
   export interface EditProjectReq extends AddProjectReq, DeleteProjectReq {
     apiExportTemplate?: string
-    isProxy?: 0 | 1
-    isAllProxy?: 0 | 1
-    proxyHeaders?: string
+  }
+
+  export interface ResProxyInfo {
+    projectId: number
+    proxyInfo: string
   }
 
   export interface ResPorjectDetail {
@@ -137,9 +139,7 @@ export namespace Project {
     updateUserId: number
     apiExportTemplate: string
     createUsername?: string
-    isProxy: 0 | 1
-    isAllProxy: 0 | 1
-    proxyHeaders: string
+    proxyInfo: string
     members?: { id: number; username: string }[]
   }
 }

@@ -135,7 +135,8 @@ const projectDetail = ref<Project.ResPorjectDetail>({
   updateTime: '',
   createTime: '',
   updateUserId: 0,
-  apiExportTemplate: ''
+  apiExportTemplate: '',
+  proxyInfo: '',
 })
 
 const getProjectDetail = async () => {
