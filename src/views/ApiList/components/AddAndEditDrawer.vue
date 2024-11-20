@@ -41,7 +41,7 @@
               placeholder="请输入接口描述"
               resize="none"
               type="textarea"
-              maxlength="100"
+              maxlength="400"
               show-word-limit
             />
           </el-form-item>
@@ -56,7 +56,14 @@
                 title="配置传参"
                 @click="handleEditParams"
               />
-              <el-button icon="Upload" size="small" circle title="传参导入" @click="handleImportParams" />
+              <el-button
+                icon="Upload"
+                size="small"
+                circle
+                title="传参导入"
+                :disabled="formData.method === 'GET'"
+                @click="handleImportParams"
+              />
             </template>
 
             <el-switch v-model="formData.paramsCheckOn" :active-value="1" :inactive-value="0" />
