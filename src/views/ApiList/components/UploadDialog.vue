@@ -11,6 +11,7 @@
       :data="params"
       :before-upload="handleBeforeUpload"
       :on-success="handleSuccess"
+      :on-error="handleError"
     >
       <el-icon class="el-icon--upload"><upload-filled /></el-icon>
       <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
@@ -19,7 +20,8 @@
       </template>
     </el-upload>
 
-    <el-table v-if="resultData.length" :data="resultData" max-height="250" style="width: 100%" empty-text="-">
+    <div v-if="loading" class="h-10 flex items-center justify-center text-lg">解析中...</div>
+    <el-table v-else-if="resultData.length" :data="resultData" max-height="250" style="width: 100%" empty-text="-">
       <el-table-column type="index" width="60" label="序号" />
       <el-table-column prop="url" label="url" width="180" show-overflow-tooltip />
       <el-table-column prop="status" label="status" width="80" />
@@ -54,6 +56,7 @@ const headers = reactive({
 const userStore = useUserStore()
 headers.authorization = `Bearer ${userStore.accessToken}`
 
+const loading = ref(false)
 const handleBeforeUpload = (file: File) => {
   const fileSizeLimit = 10 * 1024 * 1024 // 限制上传文件大小为 10MB
   if (file.size > fileSizeLimit) {
@@ -61,6 +64,7 @@ const handleBeforeUpload = (file: File) => {
     return false // 阻止文件上传
   }
   resultData.value = []
+  loading.value = true
   return true // 允许文件上传
 }
 
@@ -73,7 +77,14 @@ interface ResUpload {
 const resultData = ref<ResUpload[]>([])
 const handleSuccess = (res: ResultData<ResUpload[]>) => {
   resultData.value = res.data
+  loading.value = false
   $emit('success')
+}
+
+// 上传失败
+const handleError = () => {
+  loading.value = false
+  ElMessage.error('上传失败')
 }
 
 const route = useRoute()
