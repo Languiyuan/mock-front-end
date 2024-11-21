@@ -138,7 +138,7 @@
 
   <AddAndEditDrawer ref="drawerRef" :project-id="projectId" :folder-id="curFolderId" @success="handleAddOrEditSuccess"> </AddAndEditDrawer>
   <ApiMoveDialog ref="apiMoveRef" :folder-list="folderList" @success="getApiList"></ApiMoveDialog>
-  <UploadDialog ref="uploadDialogRef" @success="getApiList"></UploadDialog>
+  <UploadDialog ref="uploadDialogRef" @success="handleUploadSuccess"></UploadDialog>
   <SwaggerUploadDialog ref="swaggerUploadDialogRef" @success="handleSwaggerImportSuccess"></SwaggerUploadDialog>
   <ApiCustomExportDialog ref="ApiCustomExportDialogRef" :base-url="$props.rootUrl"></ApiCustomExportDialog>
   <ProxyConfigDialog ref="proxyConfigDialogRef"></ProxyConfigDialog>
@@ -395,6 +395,10 @@ const handleExportApi = async () => {
 const uploadDialogRef = ref()
 const handleUpload = () => {
   uploadDialogRef.value.open()
+}
+const handleUploadSuccess = async () => {
+  await getFolderList()
+  await getApiList()
 }
 
 // 导入swagger
