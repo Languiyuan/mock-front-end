@@ -16,7 +16,8 @@
 
           <div class="flex flex-col">
             <el-button type="primary" icon="Upload" @click="handleUpload">导入项目</el-button>
-            <el-button class="!ml-0 mt-2" type="primary" icon="Upload" @click="handleSwaggerUpload">导入swagger</el-button>
+            <el-button class="!ml-0 mt-2" type="primary" icon="Upload" @click="handleSwaggerUpload">导入Swagger</el-button>
+            <el-button class="!ml-0 mt-2" type="primary" icon="Upload" @click="handleHarUpload">导入HAR</el-button>
           </div>
         </el-popover>
 
@@ -140,6 +141,7 @@
   <ApiMoveDialog ref="apiMoveRef" :folder-list="folderList" @success="getApiList"></ApiMoveDialog>
   <UploadDialog ref="uploadDialogRef" @success="handleUploadSuccess"></UploadDialog>
   <SwaggerUploadDialog ref="swaggerUploadDialogRef" @success="handleSwaggerImportSuccess"></SwaggerUploadDialog>
+  <HarUploadDialog ref="harUploadDialogRef" @success="handleSwaggerImportSuccess" :base-url="$props.rootUrl"></HarUploadDialog>
   <ApiCustomExportDialog ref="ApiCustomExportDialogRef" :base-url="$props.rootUrl"></ApiCustomExportDialog>
   <ProxyConfigDialog ref="proxyConfigDialogRef"></ProxyConfigDialog>
 </template>
@@ -160,6 +162,7 @@ import ApiMoveDialog from './ApiMoveDialog.vue'
 import { exportProjectAllApi } from '@/api/modules/mockApi'
 import UploadDialog from './UploadDialog.vue'
 import SwaggerUploadDialog from './SwaggerUploadDialog.vue'
+import HarUploadDialog from './HarUploadDialog.vue'
 import ApiCustomExportDialog from '@/views/ApiList/components/ApiCustomExportDialog.vue'
 import { validateParams, parseQueryParams, getType, urlToRegex } from '@/utils/mockFunc'
 import ProxyConfigDialog from './ProxyConfigDialog.vue'
@@ -410,6 +413,12 @@ const handleSwaggerUpload = () => {
 const handleSwaggerImportSuccess = async () => {
   await getFolderList()
   await getApiList()
+}
+
+// 导入 HAR file
+const harUploadDialogRef = ref()
+const handleHarUpload = () =>{
+  harUploadDialogRef.value.open()
 }
 
 const drawerRef = ref()

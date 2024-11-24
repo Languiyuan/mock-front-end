@@ -7,11 +7,13 @@
       :action="url"
       :headers="headers"
       name="projectFile"
-      accept=".json"
+      accept=".har"
       :data="params"
       :before-upload="handleBeforeUpload"
       :on-success="handleSuccess"
       :on-error="handleError"
+      :on-change="handleChange"
+      :auto-upload="false"
     >
       <el-icon class="el-icon--upload"><upload-filled /></el-icon>
       <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
@@ -38,6 +40,13 @@ import { useUserStore } from '../../../stores/modules/user'
 import { ElMessage } from 'element-plus'
 import { ResultData } from '../../../api/interface/index'
 import { PORT1 } from '@/api/config/servicePort'
+
+const $props = defineProps({
+  baseUrl: {
+    type: String,
+    default: ''
+  }
+})
 
 const $emit = defineEmits<{
   success: []
@@ -86,6 +95,51 @@ const handleError = () => {
   ElMessage.error('上传失败')
 }
 
+interface ApiOption {
+  url: string
+}
+const apiOptions = ref<ApiOption[]>([])
+const handleChange = (file :any) => {
+  console.log(file)
+  if (!file) {
+        alert('Please select a .har file.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const harData = JSON.parse(e!.target!.result as string);
+
+            console.log('harData',harData)
+            const context:string =  `/${$props.baseUrl.split('/').pop()}` || '/'
+            const newEntries = harData.log.entries.filter((entry:any) => {
+              const methodFlag = entry.request.method === 'POST' || entry.request.method === 'GET'
+              const urlFlag = entry.request.url.includes(context)
+              const contentypeFlag = entry.request.headers.find((item: {name: string, value: string}) => item.name === 'Content-Type' && item.value=== 'application/json') 
+              return methodFlag && urlFlag && contentypeFlag
+            })
+            console.log('newEntries',newEntries)
+            console.log('context',context)
+            let list = newEntries.map((item: any) => {
+              // 查找'/lanMock'的位置
+              const index = item.request.url.indexOf(context);
+
+              return {
+                url: item.request.url.substring(index)
+              }
+            })
+            list = [...new Set(list)]
+            console.log('apiOptions.value',apiOptions.value, list)
+        } catch (error) {
+            console.error('Error processing the file:', error);
+        }
+    };
+
+    // Read the file as text
+    reader.readAsText(file.raw);
+}
+
 const route = useRoute()
 const projectId = computed(() => {
   return Number(route.params?.projectId || 0)
@@ -93,11 +147,11 @@ const projectId = computed(() => {
 
 interface Params {
   projectId: number,
-  type: 'swaggerJson',
+  type: 'har',
   useRealData: 'real' | 'mock'
 }
 const params = ref<Params>()
-params.value = { projectId: projectId.value, type: 'swaggerJson', useRealData: 'real' }
+params.value = { projectId: projectId.value, type: 'har', useRealData: 'real' }
 
 const dialogVisible = ref(false)
 const open = () => {
