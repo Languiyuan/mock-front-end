@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="参数导入" width="500" :before-close="handleClose" append-to-body>
+  <el-dialog v-model="dialogVisible" title="参数导入" :close-on-click-modal="false" width="500" :before-close="handleClose" append-to-body>
     <template #header>
       Body参数导入
       <el-tooltip class="box-item" effect="dark" content="仅支持JSON对象格式,且会覆盖已配置参数" placement="top">

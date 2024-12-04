@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="上传" width="600px" :before-close="close">
+  <el-dialog v-model="dialogVisible" title="上传" :close-on-click-modal="false" width="600px" :before-close="close">
     <el-upload
       ref="uploadRef"
       class="upload-demo"
@@ -17,6 +17,14 @@
       <div class="el-upload__text">Drop file here or <em>click to upload</em></div>
       <template #tip>
         <div class="el-upload__tip"><strong>json</strong> files with a size less than 10M</div>
+
+        <div class="mt-2">
+          <span class="pr-1">是否覆盖：</span>
+          <el-radio-group v-model="isCover" size="small">
+            <el-radio class="!mr-4" value="1" border>是</el-radio>
+            <el-radio value="-1" border>否</el-radio>
+          </el-radio-group>
+        </div>
       </template>
     </el-upload>
 
@@ -90,14 +98,17 @@ const route = useRoute()
 const projectId = computed(() => {
   return Number(route.params?.projectId || 0)
 })
-
+const isCover = ref<'-1' | '1'>('-1')
 interface Params {
-  projectId: number,
-  type: 'swaggerJson',
+  projectId: number
+  type: 'swaggerJson'
   useRealData: 'real' | 'mock'
+  isCover: '-1' | '1'
 }
-const params = ref<Params>()
-params.value = { projectId: projectId.value, type: 'swaggerJson', useRealData: 'real' }
+
+const params = computed<Params>(() => {
+  return { projectId: projectId.value, type: 'swaggerJson', useRealData: 'real', isCover: isCover.value }
+})
 
 const dialogVisible = ref(false)
 const open = () => {
