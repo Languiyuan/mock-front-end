@@ -112,7 +112,7 @@ const submit = async () => {
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'generated.js'
+  a.download = 'exportApi.js'
   a.click()
 
   // 清理
