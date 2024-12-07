@@ -100,7 +100,7 @@ const menuList = computed(() => {
         name: 'manager',
         component: '/UserManage/index',
         meta: {
-          icon: 'Grd',
+          icon: 'UserFilled',
           title: '成员管理',
           isLink: '',
           isHide: false,
@@ -114,7 +114,7 @@ const menuList = computed(() => {
         name: 'manager',
         component: '/ProjectManage/index',
         meta: {
-          icon: '',
+          icon: 'Memo',
           title: '项目管理',
           isLink: '',
           isHide: false,
