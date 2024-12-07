@@ -139,7 +139,7 @@ const handleChange = (file: any) => {
         // 判断url是否包含context
         const urlFlag = entry.request.url.includes(context.value)
         // conetent-type为application/json
-        const contentypeFlag = entry.request.headers.find(
+        const contentypeFlag = entry.response.headers.find(
           (item: { name: string; value: string }) => item.name === 'Content-Type' && item.value === 'application/json'
         )
         return methodFlag && urlFlag && contentypeFlag
