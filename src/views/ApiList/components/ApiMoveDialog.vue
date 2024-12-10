@@ -47,6 +47,7 @@ const open = (id: number) => {
 
 const close = () => {
   moveApiFormRef.value && moveApiFormRef.value.resetFields()
+  form.folderId = 0
   dialogFormVisible.value = false
 }
 
