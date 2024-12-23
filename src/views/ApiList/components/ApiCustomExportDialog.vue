@@ -102,7 +102,8 @@ const submit = async () => {
 
   let basicContent = ''
   selectList.value.forEach((item) => {
-    basicContent += replaceVariables(content, item)
+    basicContent += `${replaceVariables(content, item)}
+`
   })
 
   // 创建 Blob 对象

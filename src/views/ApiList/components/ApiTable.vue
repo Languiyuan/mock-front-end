@@ -164,7 +164,7 @@ import UploadDialog from './UploadDialog.vue'
 import SwaggerUploadDialog from './SwaggerUploadDialog.vue'
 import HarUploadDialog from './HarUploadDialog.vue'
 import ApiCustomExportDialog from '@/views/ApiList/components/ApiCustomExportDialog.vue'
-import { validateParams, parseQueryParams, getType, urlToRegex } from '@/utils/mockFunc'
+import { list2mockjs } from '@/utils/mockFunc'
 import ProxyConfigDialog from './ProxyConfigDialog.vue'
 
 const $props = defineProps<{
@@ -329,43 +329,8 @@ const handleExportMock = async () => {
         list = data.list
       }
 
-      let basicContent = `
-      import Mock from 'mockjs'
-      `
-      list.forEach((item) => {
-        if (checked.value && item.paramsCheckOn === 1) {
-          basicContent += `
-          // ${item.description}
-          Mock.mock(urlToRegex('${item.url}'), '${item.method.toLowerCase()}', (options) => {
-             const queryData = parseQueryParams(options.url)
-             const params = ${item.params}
-             const validateRes = validateParams(queryData, options.body ? JSON.parse(options.body) : {}, params)
-            if(validateRes) {
-              return {
-                "code": 400,
-                "message": "fail",
-                "data": validateRes
-              }
-            }
-
-            return Mock.mock(${JSON.stringify(JSON.parse(item.mockRule))})
-          });`
-        } else {
-          basicContent += `
-          // ${item.description}
-          Mock.mock(urlToRegex('${item.url}'), '${item.method.toLowerCase()}', ${JSON.stringify(JSON.parse(item.mockRule))});
-          `
-        }
-      })
-
-      if (checked.value) {
-        basicContent += `
-        /***************** Utility Functions ******************/`
-        basicContent += validateParams
-        basicContent += parseQueryParams
-        basicContent += getType
-      }
-      basicContent += urlToRegex
+      const baseUrl = `/${$props.rootUrl ? '' + $props.rootUrl.split('/').pop() : ''}`
+      const basicContent = list2mockjs(list, checked.value, baseUrl)
 
       // 创建 Blob 对象
       const blob = new Blob([basicContent], { type: 'application/javascript' })
@@ -417,7 +382,7 @@ const handleSwaggerImportSuccess = async () => {
 
 // 导入 HAR file
 const harUploadDialogRef = ref()
-const handleHarUpload = () =>{
+const handleHarUpload = () => {
   harUploadDialogRef.value.open()
 }
 
