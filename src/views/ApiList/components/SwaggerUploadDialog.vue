@@ -54,7 +54,7 @@ const $emit = defineEmits<{
 const url = ref('')
 url.value =
   import.meta.env.VITE_USER_NODE_ENV === 'development'
-    ? `http://localhost:3000${PORT1}/api/uploadProjectFile`
+    ? `http://localhost:4399${PORT1}/api/uploadProjectFile`
     : `${PORT1}/api/uploadProjectFile`
 
 const headers = reactive({

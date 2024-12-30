@@ -102,6 +102,7 @@ import AceEditor from './AceEditor.vue'
 // import { ElNotification } from 'element-plus'
 import ParamsEdit from './ParamsEdit.vue'
 import ParamsImportDialog from './ParamsImportDialog.vue'
+import { isObject } from '@/utils/is'
 
 const $props = defineProps<{
   projectId: number
@@ -249,7 +250,10 @@ const submit = () => {
   formRef.value?.validate(async (valid) => {
     if (!valid) return
     const aceContent = aceEditorRef.value.getContent()
+
     if (aceContent === 'illegal') return
+    if (!isObject(JSON.parse(aceContent))) return ElMessage.error('mockRule类型必须是Object')
+
     // console.log('aceContent', typeof aceContent, aceContent, JSON.stringify(JSON.parse(aceContent)))
     // try {
     //   JSON.parse(aceContent)
